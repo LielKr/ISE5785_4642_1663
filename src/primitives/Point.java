@@ -1,34 +1,76 @@
 package primitives;
 
-
-
+/**
+ * Represents a point in 3D space using three coordinates.
+ */
 public class Point {
-    public static final Point ZERO =new Point(Double3.ZERO);
 
+    /**
+     * The point at the origin (0, 0, 0).
+     */
+    public static final Point ZERO = new Point(Double3.ZERO);
+
+    /**
+     * The internal representation of the point as a 3D coordinate.
+     */
     protected final Double3 xyz;
 
+    /**
+     * Constructs a point from three coordinate values.
+     *
+     * @param x the X coordinate
+     * @param y the Y coordinate
+     * @param z the Z coordinate
+     */
     public Point(double x, double y, double z) {
-        xyz=new Double3(x,y,z);
+        xyz = new Double3(x, y, z);
     }
 
+    /**
+     * Constructs a point from a {@link Double3} object.
+     *
+     * @param xyz the 3D coordinate
+     */
     public Point(Double3 xyz) {
-        this.xyz=xyz;
+        this.xyz = xyz;
     }
 
-
-
+    /**
+     * Returns a vector from the given point to this point.
+     *
+     * @param p1 the point to subtract
+     * @return the resulting vector
+     */
     public Vector subtract(Point p1) {
         return new Vector(xyz.subtract(p1.xyz));
     }
 
+    /**
+     * Returns a new point by adding the given vector to this point.
+     *
+     * @param v1 the vector to add
+     * @return the resulting point
+     */
     public Point add(Vector v1) {
         return new Point(xyz.add(v1.xyz));
     }
 
+    /**
+     * Returns the Euclidean distance between this point and another point.
+     *
+     * @param p1 the other point
+     * @return the distance
+     */
     public double distance(Point p1) {
         return Math.sqrt(distanceSquared(p1));
     }
 
+    /**
+     * Returns the squared distance between this point and another point.
+     *
+     * @param p1 the other point
+     * @return the squared distance
+     */
     public double distanceSquared(Point p1) {
         Double3 temp = this.xyz.subtract(p1.xyz);
         temp = temp.product(temp);
@@ -40,15 +82,10 @@ public class Point {
         if (this == obj) return true;
         return (obj instanceof Point other)
                 && this.xyz.equals(other.xyz);
-
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "" + xyz;
     }
-
-
-
 }

@@ -2,18 +2,31 @@ package geometries;
 
 import java.awt.*;
 import primitives.Vector;
+import primitives.Point;
 
-public class Sphere extends RadialGeometry
-{
+/**
+ * Represents a sphere in 3D space defined by a center point and a radius.
+ */
+public class Sphere extends RadialGeometry {
+
+    /**
+     * The center point of the sphere.
+     */
     private final Point center;
 
-    public Sphere(Point center,double radius)
-    {
+    /**
+     * Constructs a Sphere with a given center and radius.
+     *
+     * @param center the center point of the sphere
+     * @param radius the radius of the sphere
+     */
+    public Sphere(Point center, double radius) {
         super(radius);
         this.center = center;
     }
-    public Vector getNormal(Point p)
-    {
+
+    @Override
+    public Vector getNormal(Point p) {
         return null;
     }
 }

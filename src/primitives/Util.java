@@ -1,56 +1,74 @@
 package primitives;
 
-/** Util class is used for some internal utilities, e.g. controlling accuracy
- * @author Dan */
+/**
+ * Utility class that provides internal static methods and constants
+ * for mathematical operations with controlled accuracy.
+ * This class cannot be instantiated.
+ *
+ * @author Dan
+ */
 public final class Util {
-   /** It is binary, equivalent to ~1/1,000,000,000,000 in decimal (12 digits) */
+
+   /**
+    * The threshold exponent for considering a number as zero.
+    * Equivalent to approximately 1e-12.
+    */
    private static final int ACCURACY = -40;
 
-   /** Don't let anyone instantiate this class. */
+   /**
+    * Private constructor to prevent instantiation of this utility class.
+    */
    private Util() {}
 
-   /** {@code double} data format in memory (bit level):<br>
-    * seee eeee eeee (1.)mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm<br>
-    * 1 bit sign, 11 bits exponent, 53 bits (52 stored) normalized mantissa<br>
-    * the number is m+2^e where 1&lt;=m&lt;2<br>
-    * NB: exponent is stored "normalized" (i.e. always positive by adding 1023)<br>
-    * @param  num the original number
-    * @return     the exponent value */
+   /**
+    * Returns the exponent part of a given double number.
+    *
+    * @param num the number whose exponent is to be retrieved
+    * @return the exponent part of the number
+    */
    private static int getExp(double num) {
-      // 1. doubleToRawLongBits: "convert" the stored number to set of bits
-      // 2. Shift all 52 bits to the right (removing mantissa)
-      // 3. Zero the sign of number bit by mask 0x7FF
-      // 4. "De-normalize" the exponent by subtracting 1023
       return (int) ((Double.doubleToRawLongBits(num) >> 52) & 0x7FFL) - 1023;
    }
 
-   /** Checks whether the number is [almost] zero
-    * @param  number the number to check
-    * @return        true if the number is zero or almost zero, false otherwise */
+   /**
+    * Checks whether a given number is zero or close enough to be considered zero.
+    *
+    * @param number the number to check
+    * @return true if the number is almost zero, false otherwise
+    */
    public static boolean isZero(double number) {
       return getExp(number) < ACCURACY;
    }
 
-   /** Aligns the number to zero if it is almost zero
-    * @param  number the number to align
-    * @return        0.0 if the number is very close to zero, the number itself
-    *                otherwise */
-   public static double alignZero(double number) { return isZero(number) ? 0.0 : number; }
+   /**
+    * Aligns a number to zero if it is close enough.
+    *
+    * @param number the number to align
+    * @return 0.0 if the number is almost zero, otherwise returns the number itself
+    */
+   public static double alignZero(double number) {
+      return isZero(number) ? 0.0 : number;
+   }
 
-   /** Check whether two numbers have the same sign
-    * @param  n1 1st number
-    * @param  n2 2nd number
-    * @return    true if the numbers have the same sign */
+   /**
+    * Checks whether two numbers have the same sign.
+    *
+    * @param n1 the first number
+    * @param n2 the second number
+    * @return true if both numbers have the same sign, false otherwise
+    */
    public static boolean compareSign(double n1, double n2) {
       return (n1 < 0 && n2 < 0) || (n1 > 0 && n2 > 0);
    }
 
-   /** Provide a real random number in range between min and max
-    * @param  min value (included)
-    * @param  max value (excluded)
-    * @return     the random value */
+   /**
+    * Generates a random real number in the specified range.
+    *
+    * @param min the lower bound (inclusive)
+    * @param max the upper bound (exclusive)
+    * @return a random number between min (inclusive) and max (exclusive)
+    */
    public static double random(double min, double max) {
       return Math.random() * (max - min) + min;
    }
-
 }
