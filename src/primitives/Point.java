@@ -72,9 +72,9 @@ public class Point {
      * @return the squared distance
      */
     public double distanceSquared(Point p1) {
-        Double3 temp = this.xyz.subtract(p1.xyz);
-        temp = temp.product(temp);
-        return temp.d1 + temp.d2 + temp.d3;
+        Double3 diff = this.xyz.subtract(p1.xyz);
+        Double3 squared = diff.product(diff);
+        return squared.d1 + squared.d2 + squared.d3;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package geometries;
 
 import java.awt.*;
+
 import primitives.Vector;
 import primitives.Point;
 
@@ -26,7 +27,7 @@ public class Sphere extends RadialGeometry {
     }
 
     @Override
-    public Vector getNormal(Point p) {
+    public Vector getNormal(Point point) {
         return null;
     }
 }

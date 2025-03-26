@@ -10,11 +10,12 @@ public class Triangle extends Polygon {
     /**
      * Constructs a Triangle from three points.
      *
-     * @param p1 the first vertex of the triangle
-     * @param p2 the second vertex of the triangle
-     * @param p3 the third vertex of the triangle
+     * @param point1 the first vertex of the triangle
+     * @param point2 the second vertex of the triangle
+     * @param point3 the third vertex of the triangle
      */
-    public Triangle(Point p1, Point p2, Point p3) {
-        super(p1, p2, p3);
+    public Triangle(Point point1, Point point2, Point point3) {
+        super(point1, point2, point3);
+
     }
 }

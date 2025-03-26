@@ -26,12 +26,12 @@ public class Vector extends Point {
     /**
      * Constructs a vector from a {@link Double3} object.
      *
-     * @param double3 the 3D coordinate
+     * @param xyz the 3D coordinate
      * @throws IllegalArgumentException if the vector is the zero vector
      */
-    public Vector(Double3 double3) {
-        super(double3);
-        if (double3.equals(Double3.ZERO)) {
+    public Vector(Double3 xyz) {
+        super(xyz);
+        if (xyz.equals(Double3.ZERO)) {
             throw new IllegalArgumentException("Vector cannot be zero vector");
         }
     }
@@ -59,11 +59,11 @@ public class Vector extends Point {
     /**
      * Calculates the dot product of this vector with another vector.
      *
-     * @param v the other vector
+     * @param vector the other vector
      * @return the dot product
      */
-    public double dotProduct(Vector v) {
-        return this.xyz.d1 * v.xyz.d1 + this.xyz.d2 * v.xyz.d2 + this.xyz.d3 * v.xyz.d3;
+    public double dotProduct(Vector vector) {
+        return this.xyz.d1 * vector.xyz.d1 + this.xyz.d2 * vector.xyz.d2 + this.xyz.d3 * vector.xyz.d3;
     }
 
     /**
@@ -104,11 +104,7 @@ public class Vector extends Point {
      * @return the normalized vector
      */
     public Vector normalize() {
-        return new Vector(
-                this.xyz.d1 / length(),
-                this.xyz.d2 / length(),
-                this.xyz.d3 / length()
-        );
+        return new Vector(this.xyz.reduce(this.length()));
     }
 
     @Override

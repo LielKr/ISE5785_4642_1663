@@ -21,23 +21,23 @@ public class Plane extends Geometry {
     /**
      * Constructs a plane from three points lying on the plane.
      *
-     * @param p1 the first point
-     * @param p2 the second point
-     * @param p3 the third point
+     * @param point1 the first point
+     * @param point2 the second point
+     * @param point3 the third point
      */
-    public Plane(Point p1, Point p2, Point p3) {
+    public Plane(Point point1, Point point2, Point point3) {
         this.normal = null;
-        this.q = p1;
+        this.q = point1;
     }
 
     /**
      * Constructs a plane from a point and a normal vector.
      *
-     * @param p      a point on the plane
+     * @param point      a point on the plane
      * @param normal the normal vector of the plane
      */
-    public Plane(Point p, Vector normal) {
-        this.q = p;
+    public Plane(Point point, Vector normal) {
+        this.q = point;
         this.normal = normal.normalize();
     }
 
