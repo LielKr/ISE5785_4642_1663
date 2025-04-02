@@ -1,37 +1,63 @@
 package primitives;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the {@link Point} class.
+ */
 class PointTest {
-    Point point1= new Point(2.0, 4.0, 6.0);
-    Point point2= new Point(3.0, 5.0, 7.0);
+
+    /** Test points used in various test cases. */
+    Point point1 = new Point(2.0, 4.0, 6.0);
+    Point point2 = new Point(3.0, 5.0, 7.0);
+
+    /** Test vectors used for addition and subtraction operations. */
     Vector v1 = new Vector(1.0, 2.0, 3.0);
-    Vector v2= new Vector(-1.0,-2.0,-3.0);
+    Vector v2 = new Vector(-1.0, -2.0, -3.0);
 
-
+    /**
+     * Test method for {@link Point#subtract(Point)}.
+     * Verifies correct subtraction of two points.
+     */
     @Test
     void testSubtract() {
-        assertEquals(new Point(2.0, 3.0, 4.0), point2.add(v1),"Wrong result of adding two vectors");
-///  /////////////////////////////////////////////
+        // Test subtraction of a vector from a point
+        assertEquals(new Point(2.0, 3.0, 4.0), point2.add(v1), "Wrong result of adding a vector to a point");
     }
 
+    /**
+     * Test method for {@link Point#add(Vector)}.
+     * Verifies correct addition of a vector to a point.
+     */
     @Test
     void testAdd() {
-        assertEquals(new Point(3.0, 6.0, 9.0), point1.add(v1),"Wrong result of adding two vectors");
-        assertEquals(new Point(1.0, 2.0, 3.0), point1.add(v2),"Wrong result of adding two vectors");
+        // Test addition of vectors to points
+        assertEquals(new Point(3.0, 6.0, 9.0), point1.add(v1), "Wrong result of adding a vector to a point");
+        assertEquals(new Point(1.0, 2.0, 3.0), point1.add(v2), "Wrong result of adding a vector to a point");
     }
 
+    /**
+     * Test method for {@link Point#distance(Point)}.
+     * Verifies correct distance calculation between points.
+     */
     @Test
     void testDistance() {
-        assertEquals(0.0, point1.distance(point1), 0.00001,"Wrong result of distanceing two vectors");
-        assertEquals(1.732, point2.distance(point1),0.00001,"Wrong result of distanceing two vectors");
+        // Test distance calculation between the same point (should be zero)
+        assertEquals(0.0, point1.distance(point1), 0.00001, "Wrong result of distance calculation between the same points");
+        // Test distance calculation between two different points
+        assertEquals(1.732, point2.distance(point1), 0.00001, "Wrong result of distance calculation between two points");
     }
 
+    /**
+     * Test method for {@link Point#distanceSquared(Point)}.
+     * Verifies correct squared distance calculation between points.
+     */
     @Test
     void testDistanceSquared() {
-        assertEquals(0.0, point1.distanceSquared(point1), 0.00001,"Calculate the squared distance between two points does not work correctly");
-        assertEquals(3.0, point1.distanceSquared(point2), 0.00001,"Calculate the squared distance between two points does not work correctly");
+        // Test squared distance calculation between the same point (should be zero)
+        assertEquals(0.0, point1.distanceSquared(point1), 0.00001, "Squared distance calculation between the same points failed");
+        // Test squared distance calculation between two different points
+        assertEquals(3.0, point1.distanceSquared(point2), 0.00001, "Squared distance calculation between two points failed");
     }
 }
