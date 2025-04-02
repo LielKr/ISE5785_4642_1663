@@ -18,4 +18,5 @@ public class Triangle extends Polygon {
         super(point1, point2, point3);
 
     }
+
 }

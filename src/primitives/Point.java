@@ -58,11 +58,11 @@ public class Point {
     /**
      * Returns the Euclidean distance between this point and another point.
      *
-     * @param p1 the other point
+     * @param point the other point
      * @return the distance
      */
-    public double distance(Point p1) {
-        return Math.sqrt(distanceSquared(p1));
+    public double distance(Point point) {
+        return Math.sqrt(distanceSquared(point));
     }
 
     /**
@@ -71,8 +71,8 @@ public class Point {
      * @param p1 the other point
      * @return the squared distance
      */
-    public double distanceSquared(Point p1) {
-        Double3 diff = this.xyz.subtract(p1.xyz);
+    public double distanceSquared(Point point) {
+        Double3 diff = this.xyz.subtract(point.xyz);
         Double3 squared = diff.product(diff);
         return squared.d1 + squared.d2 + squared.d3;
     }
