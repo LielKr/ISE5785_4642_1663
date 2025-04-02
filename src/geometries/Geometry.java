@@ -9,10 +9,11 @@ import primitives.*;
 public abstract class Geometry {
 
     /**
-     * Returns the normal vector to the geometry at a given point.
+     * Returns the normal vector to the geometry at the specified point.
      *
-     * @param point the point on the geometry
-     * @return the normal vector at the given point
+     * @param point the point located on the geometry
+     * @return the normal vector at the specified point on the geometry
      */
-    public abstract Vector getNormal(Point point) ;
-}
+    public abstract Vector getNormal(Point point);
+
+    }

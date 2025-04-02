@@ -40,6 +40,8 @@ class TriangleTest {
 
         // Ensure no exception is thrown when retrieving the normal
         assertDoesNotThrow(() -> plane.getNormal(point0), "Failed to get normal vector");
+        assertDoesNotThrow(() -> plane.getNormal(new Point(0.5,0.0,0.0)), "Failed to get normal vector");
+
 
         // Check that the normal vector has unit length
         assertEquals(1.0, actualNormal.length(), 0.00001, "Plane's normal is not a unit vector");

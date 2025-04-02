@@ -47,11 +47,12 @@ public class Plane extends Geometry {
     }
 
     /**
-     * get the normal of the plane
+     * Returns the normal vector of the plane.
      *
-     * @return the normal
+     * @return the normal vector
      */
     public Vector getNormal() {
         return normal;
     }
+
 }

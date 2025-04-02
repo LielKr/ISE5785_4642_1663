@@ -13,12 +13,13 @@ public abstract class RadialGeometry extends Geometry {
     protected final double radius;
 
     /**
-     * Constructs a radial geometry with the specified radius.
+     * Initializes a radial geometry with the given radius.
      *
      * @param radius the radius of the geometry
      */
     protected RadialGeometry(double radius) {
         this.radius = radius;
     }
+
 
 }
