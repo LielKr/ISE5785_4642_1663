@@ -1,6 +1,9 @@
 package geometries;
+import static primitives.Util.isZero;
 
+import primitives.*;
 import primitives.Ray;
+import static primitives.Util.alignZero;
 
 /**
  * Represents a finite cylinder in 3D space, defined by a central axis, radius, and height.
@@ -23,5 +26,30 @@ public class Cylinder extends Tube {
     public Cylinder(double height, Ray axis, double radius) {
         super(axis, radius);
         this.height = height;
+    }
+
+    @Override
+    public Vector getNormal(Point point) {
+        Point p0 = axis.getPoint(0d);
+        Vector dir = this.axis.getDirection();
+
+        //  If p0 is the head of the axis
+        if (point.equals(p0))
+            return dir.scale(-1);
+
+        // If p1 is the end of the axis
+        if (point.equals(axis.getPoint(height)))
+            return dir;
+
+        // If the point is on the top or bottom surface of the cylinder
+
+        if (Util.isZero(p0.subtract(point).dotProduct(dir)))
+            return dir.scale(-1d);
+
+        if (Util.isZero(axis.getPoint(height).subtract(point).dotProduct(dir)))
+            return dir;
+
+        // Otherwise, call the superclass method
+        return super.getNormal(point);
     }
 }

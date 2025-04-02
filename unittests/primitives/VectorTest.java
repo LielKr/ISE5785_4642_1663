@@ -100,7 +100,7 @@ class VectorTest {
     }
 
     /**
-     * Test method for {@link Vector#subtract(Vector)}.
+     //* Test method for {@link Vector#(Vector)}.
      * Verifies correct vector subtraction.
      */
     @Test

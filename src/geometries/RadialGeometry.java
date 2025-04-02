@@ -1,5 +1,6 @@
 package geometries;
-
+import primitives.Point;
+import primitives.Ray;
 /**
  * Represents a geometric shape that is defined by a radius.
  * This is an abstract base class for radial geometries such as spheres, tubes, etc.
@@ -19,4 +20,5 @@ public abstract class RadialGeometry extends Geometry {
     protected RadialGeometry(double radius) {
         this.radius = radius;
     }
+
 }

@@ -40,4 +40,15 @@ public class Ray {
     public String toString() {
         return "head: " + head + " , direction: " + direction;
     }
+
+    public Vector getDirection() {
+        return direction;
+    }
+    public Point getPoint(double t) {
+        // if t is zero, return the head point
+        if (Util.isZero(t))
+            return head;
+        return head.add(direction.scale(t));
+    }
+
 }

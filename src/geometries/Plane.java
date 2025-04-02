@@ -41,17 +41,17 @@ public class Plane extends Geometry {
         this.normal = normal.normalize();
     }
 
-    /**
-     * Returns the normal vector of the plane.
-     *
-     * @return the normal vector
-     */
-    public Vector getNormal() {
+    @Override
+    public Vector getNormal(Point point) {
         return normal;
     }
 
-    @Override
-    public Vector getNormal(Point point) {
-        return null;
+    /**
+     * get the normal of the plane
+     *
+     * @return the normal
+     */
+    public Vector getNormal() {
+        return normal;
     }
 }
