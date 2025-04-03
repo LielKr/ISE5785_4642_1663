@@ -1,5 +1,7 @@
 package primitives;
 
+import primitives.Ray;
+import primitives.Point;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -8,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class PointTest {
 
+    public static final double DELTA = 0.00001;
     /** Test points used in various test cases. */
     Point point1 = new Point(2.0, 4.0, 6.0);
     Point point2 = new Point(3.0, 5.0, 7.0);
@@ -44,9 +47,9 @@ class PointTest {
     @Test
     void testDistance() {
         // Test distance calculation between the same point (should be zero)
-        assertEquals(0.0, point1.distance(point1), 0.00001, "Wrong result of distance calculation between the same points");
+        assertEquals(0.0, point1.distance(point1), DELTA, "Wrong result of distance calculation between the same points");
         // Test distance calculation between two different points
-        assertEquals(1.732, point2.distance(point1), 0.00001, "Wrong result of distance calculation between two points");
+        assertEquals(1.732, point2.distance(point1), DELTA, "Wrong result of distance calculation between two points");
     }
 
     /**
@@ -56,8 +59,8 @@ class PointTest {
     @Test
     void testDistanceSquared() {
         // Test squared distance calculation between the same point (should be zero)
-        assertEquals(0.0, point1.distanceSquared(point1), 0.00001, "Squared distance calculation between the same points failed");
+        assertEquals(0.0, point1.distanceSquared(point1), DELTA, "Squared distance calculation between the same points failed");
         // Test squared distance calculation between two different points
-        assertEquals(3.0, point1.distanceSquared(point2), 0.00001, "Squared distance calculation between two points failed");
+        assertEquals(3.0, point1.distanceSquared(point2), DELTA, "Squared distance calculation between two points failed");
     }
 }
