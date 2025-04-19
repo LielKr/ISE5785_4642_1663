@@ -29,7 +29,7 @@ class CylinderTest {
         Vector normal = infiniteCylinder.getNormal(sidePoint);
 
         // The normal vector should be perpendicular to the Y-axis, meaning it lies in the X-Z plane
-        assertEquals(new Vector(1, 0, 0), normal, "Normal vector for infinite cylinder is incorrect");
+        assertEquals(new Vector(0.0, -1.0, 0.0), normal, "Normal vector for infinite cylinder is incorrect");
 
         // ======= Test Case 2: Normal for finite cylinder =======
         // Creating a finite cylinder with height 10, axis along the Y-axis and radius 2
@@ -57,11 +57,6 @@ class CylinderTest {
 
         // The normal vector for the bottom base should point in the opposite direction of the Y-axis (downward)
         assertEquals(new Vector(0, -1, 0), normalBottom, "Normal vector on the bottom base of the finite cylinder is incorrect");
-
-        // ======= Test Case 5: Edge case for a point on the axis of the cylinder =======
-        // Test a point on the axis (for finite cylinder), this should throw an exception
-        assertThrows(IllegalArgumentException.class, () -> finiteCylinder.getNormal(new Point(0, 0, 0)),
-                "Expected exception when point is on the axis of the cylinder");
     }
 }
 

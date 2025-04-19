@@ -29,10 +29,10 @@ class TriangleTest {
     Vector v1 = point2.subtract(point1);
     Vector v2 = point3.subtract(point1);
 
-    /**
-     * Test method for {@link Triangle#getNormal(Point)}.
-     * Verifies correct computation of the normal vector.
-     */
+//    /**
+//     * Test method for {@link Triangle#getNormal(Point)}.
+//     * Verifies correct computation of the normal vector.
+//     */
 //    @Test
 //    void testGetNormal() {
 //        // Verify that the computed normal is either v0 or its negation

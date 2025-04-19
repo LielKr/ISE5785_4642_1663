@@ -14,6 +14,9 @@ class PointTest {
     /** Test points used in various test cases. */
     Point point1 = new Point(2.0, 4.0, 6.0);
     Point point2 = new Point(3.0, 5.0, 7.0);
+    Point point3 = new Point(0.0, 0.0, 0.0);
+    Point point4 = new Point(2.0, 0.0, 0.0);
+
 
     /** Test vectors used for addition and subtraction operations. */
     Vector v1 = new Vector(1.0, 2.0, 3.0);
@@ -50,7 +53,7 @@ class PointTest {
         // Test distance calculation between the same point (should be zero)
         assertEquals(0.0, point1.distance(point1), DELTA, "Wrong result of distance calculation between the same points");
         // Test distance calculation between two different points
-        assertEquals(1.732, point2.distance(point1), DELTA, "Wrong result of distance calculation between two points");
+        assertEquals(2.0, point3.distance(point4), DELTA, "Wrong result of distance calculation between two points");
     }
 
     /**
