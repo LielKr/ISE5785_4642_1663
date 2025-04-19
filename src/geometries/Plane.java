@@ -45,7 +45,7 @@ public class Plane extends Geometry {
 
     @Override
     public Vector getNormal(Point point) {
-        return normal;
+        return normal.normalize();
     }
 
     /**
@@ -54,7 +54,7 @@ public class Plane extends Geometry {
      * @return the normal vector
      */
     public Vector getNormal() {
-        return normal;
+        return normal.normalize();
     }
 
 }

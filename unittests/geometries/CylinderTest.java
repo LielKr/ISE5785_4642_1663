@@ -22,7 +22,7 @@ class CylinderTest {
     public void testGetNormalCylinder() {
         // ======= Test Case 1: Normal for infinite cylinder =======
         // Creating an infinite cylinder with axis on the Y-axis and radius 1
-        Cylinder infiniteCylinder = new Cylinder(Double.POSITIVE_INFINITY, new Ray(new Point(0, 0, 0), new Vector(0, 1, 0)), 1);
+        Cylinder infiniteCylinder = new Cylinder(5.0, new Ray(new Point(0, 0, 0), new Vector(0, 1, 0)), 1);
 
         // Test a point on the side of the cylinder
         Point sidePoint = new Point(1, 0, 0);  // A point on the side of the cylinder

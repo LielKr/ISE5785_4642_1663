@@ -26,7 +26,8 @@ class PointTest {
     @Test
     void testSubtract() {
         // Test subtraction of a vector from a point
-        assertEquals(new Point(2.0, 3.0, 4.0), point2.add(v1), "Wrong result of adding a vector to a point");
+
+        assertEquals(new Point(1.0, 1.0, 1.0), point2.subtract(point1), "Wrong result of adding a vector to a point");
     }
 
     /**
