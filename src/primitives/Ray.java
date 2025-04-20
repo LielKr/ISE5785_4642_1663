@@ -44,6 +44,8 @@ public class Ray {
     public Vector getDirection() {
         return direction;
     }
+    public Point getHead() { return head; }
+
     public Point getPoint(double t) {
         // if t is zero, return the head point
         if (Util.isZero(t))

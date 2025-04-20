@@ -3,6 +3,9 @@ import static primitives.Util.isZero;
 
 import primitives.*;
 import primitives.Ray;
+
+import java.util.List;
+
 import static primitives.Util.alignZero;
 
 /**
@@ -51,6 +54,11 @@ public class Cylinder extends Tube {
 
         // Otherwise, call the superclass method
         return super.getNormal(point);
+    }
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
     }
 }
 

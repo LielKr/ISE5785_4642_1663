@@ -52,4 +52,8 @@ class PolygonTest {
                     "Polygon's normal is not orthogonal to one of the edges");
         }
     }
+
+    @Test
+    void testFindIntersections() {
+    }
 }
