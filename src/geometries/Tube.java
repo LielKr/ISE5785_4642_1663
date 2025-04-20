@@ -38,4 +38,8 @@ public class Tube extends RadialGeometry {
         return point.subtract(this.axis.getPoint(t)).normalize();
     }
 
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
+    }
 }

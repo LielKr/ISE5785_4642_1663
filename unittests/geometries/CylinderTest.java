@@ -58,5 +58,9 @@ class CylinderTest {
         // The normal vector for the bottom base should point in the opposite direction of the Y-axis (downward)
         assertEquals(new Vector(0, -1, 0), normalBottom, "Normal vector on the bottom base of the finite cylinder is incorrect");
     }
+
+    @Test
+    void testFindIntersections() {
+    }
 }
 

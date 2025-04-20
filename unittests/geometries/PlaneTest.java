@@ -83,5 +83,13 @@ class PlaneTest {
 
     @Test
     void testFindIntersections() {
+        Point P001 = new Point(0.0, 0.0, 1.0);
+        Point P101 = new Point(1.0, 0.0, 1.0);
+        Point P011 = new Point(0.0, 1.0, 1.0);
+
+
+        //Plane plane=
     }
+
+
 }

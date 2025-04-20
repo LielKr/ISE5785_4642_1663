@@ -27,4 +27,7 @@ class TubeTest {
         assertDoesNotThrow(() -> new Tube(r1, 1).getNormal(new Point(0, 1, 0)), "Failed to throw an exception when the point is vertical to the axis");
     }
 
+    @Test
+    void testFindIntersections() {
+    }
 }
