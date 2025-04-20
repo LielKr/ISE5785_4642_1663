@@ -33,4 +33,8 @@ public class Sphere extends RadialGeometry {
         return point.subtract(center).normalize();
     }
 
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
+    }
 }
