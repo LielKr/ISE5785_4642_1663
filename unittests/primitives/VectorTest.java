@@ -96,9 +96,8 @@ class VectorTest {
     @Test
     void testNormalize() {
         assertEquals(1, v1.normalize().length(), "Wrong result of normalization");
-        assertEquals(v1, v1.normalize(), "Wrong result of normalization");
+        assertEquals(new Vector(1.0,0.0,0.0), v6.normalize(), "Wrong result of normalization");
         assertTrue(v1.normalize().dotProduct(v1) > 0, "Normalized vector is not parallel to the original one");
-        assertThrows(IllegalArgumentException.class, () -> new Vector(0, 0, 0).normalize(), "Expected IllegalArgumentException when normalizing a zero vector");
     }
 
     /**

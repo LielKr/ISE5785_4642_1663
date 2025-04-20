@@ -60,8 +60,10 @@ public class Plane extends Geometry {
         return normal.normalize();
     }
 
-//    @Override
-//    public List<Point> findIntsersections(Ray ray) {
-//        return null;
-//    }
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
+    }
+
+
 }

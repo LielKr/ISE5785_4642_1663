@@ -72,4 +72,16 @@ class PlaneTest {
         assertTrue(normal.equals(expectedNormal) || normal.equals(new Vector(0, 0, -1)),
                 "Failed to get the normal vector of the plane");
     }
+
+    @Test
+    void testTestGetNormal() {
+    }
+
+    @Test
+    void testTestGetNormal1() {
+    }
+
+    @Test
+    void testFindIntersections() {
+    }
 }
