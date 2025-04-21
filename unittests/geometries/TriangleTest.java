@@ -5,6 +5,8 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -52,4 +54,54 @@ class TriangleTest {
 //        // Ensure that the normal is orthogonal to vector v2
 //        assertEquals(0.0, actualNormal.dotProduct(v2), "Normal is not orthogonal to v2");
 //    }
-}
+
+    @Test
+    void testFindIntersections() {
+        Point p100 = new Point(1.0, 0.0, 0.0);
+        Point p010 = new Point(0.0, 1.0, 0.0);
+        Point p040 = new Point(0.0, 4.0, 0.0);
+        Triangle triangle = new Triangle(p100, p010, p040);
+
+        //על הצלע
+        Point p00_50=new Point(0.0, 0.5, 0.0);
+        Point pIn=new Point(0.1,1.1,0);
+        Point p1= new Point(0.0,1.5,-1.0);
+        Vector v0 = new Vector(0.0, 0.0, 3.0);
+        assertNull(triangle.findIntersections(new Ray(p1, v0)), "Ray's line out of triangle");
+
+        //על הקודקוד
+        Point p_110=new Point(-1.0, 1.0, 0.0);
+        assertNull(triangle.findIntersections(new Ray(p_110, v0)), "Ray's line out of triangle");
+
+        //בתוך המשולש
+        Point p3=new Point(-0.5, 1.0, -1.0);
+        Vector v333=new Vector(3.0, 3.0, 3.0);
+        Point p4=new Point(0.5, 2.0, 0.0);
+        final var exp1 = List.of(p4);
+        final var result1 = plane.findIntersections(new Ray(p3,v333));
+        assertEquals(exp1, result1, "Ray crosses triangle");
+
+        //מחוץ למשולש על המשך הצלע
+        Point p5=new Point(-1.0, 0.0, -1.0);
+        Vector v303=new Vector(3.0, 0.0, 3.0);
+        //Point p6=new Point(0.0, 0.0, 0.0);
+        assertNull(triangle.findIntersections(new Ray(p5, v303)), "Ray's line out of triangle");
+
+        //מחוץ למשולש מול קודקוד
+        Point p7=new Point(0.0, 0.0, -1.0);
+        Vector v3=new Vector(-10.0, 2.0, 2.0);
+        //Point p8=new Point(-5.0, 1.0, 0.0);
+        assertNull(triangle.findIntersections(new Ray(p7, v3)), "Ray's line out of triangle");
+
+
+        //מחוץ למשולש מול צלע
+        Point p9=new Point(-1.0, 0.0, -1.0);
+        Vector v4=new Vector(3.0, 0.0, 2.0);
+        //Point p11=new Point(-5.0, 1.0, 0.0);
+        assertNull(triangle.findIntersections(new Ray(p9, v4)), "Ray's line out of triangle");
+
+
+
+    }
+
+    }

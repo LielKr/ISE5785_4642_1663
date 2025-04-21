@@ -1,9 +1,8 @@
 package geometries;
-
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
-
+import primitives.Util;
 import java.util.List;
 
 /**
@@ -29,11 +28,25 @@ public class Plane extends Geometry {
      * @param point3 the third point
      */
     public Plane(Point point1, Point point2, Point point3) {
+        // בדיקה אם הנקודות חופפות
+        if (point1.equals(point2) || point1.equals(point3) || point2.equals(point3)) {
+            throw new IllegalArgumentException("Plane cannot be defined by identical points");
+        }
+
+        // יצירת וקטורים בין הנקודות
+        Vector v1 = point2.subtract(point1);
+        Vector v2 = point3.subtract(point1);
+
+        // בדיקה אם הוקטורים חופפים או אפסיים
+        if (v1.equals(Vector.ZERO) || v2.equals(Vector.ZERO) || v1.crossProduct(v2).equals(Vector.ZERO)) {
+            throw new IllegalArgumentException("Plane cannot be defined by collinear points or zero vectors");
+        }
+
+        // הגדרת המאפיינים של המישור
         this.q = point1;
-        this.normal = point2.subtract(point1)
-                .crossProduct(point3.subtract(point1))
-                .normalize();
+        this.normal = v1.crossProduct(v2).normalize();
     }
+
 
     /**
      * Constructs a plane from a point and a normal vector.
@@ -62,8 +75,16 @@ public class Plane extends Geometry {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return null;
+        Vector direction = ray.getDirection();
+        Point point0 = ray.getHead();
+        // if the ray is parallel to the plane or the ray starts on the plane at the point q
+        if (Util.isZero(direction.dotProduct(normal)) || q.equals(point0))
+            return null;
+        double t = normal.dotProduct(q.subtract(point0)) / normal.dotProduct(direction);
+
+
+        return Util.alignZero(t) <= 0d? null : List.of(ray.getPoint(t));
+    }
     }
 
 
-}
