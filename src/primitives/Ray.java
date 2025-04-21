@@ -46,6 +46,9 @@ public class Ray {
     }
     public Point getHead() { return head; }
 
+
+    //המתודה מחשבת נקודה על הישר של הקרן,
+    //במרחק נתון מראש הקרן
     public Point getPoint(double t) {
         // if t is zero, return the head point
         if (Util.isZero(t))

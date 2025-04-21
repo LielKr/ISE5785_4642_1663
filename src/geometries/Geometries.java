@@ -15,7 +15,7 @@ public class Geometries implements Intersectable {
         add (geometries);
     }
 
-    private void add(Intersectable... geometries) {
+    public void add(Intersectable... geometries) {
         Collections.addAll(this.geometries, geometries);
     }
 
@@ -26,6 +26,16 @@ public class Geometries implements Intersectable {
     @Override
 
     public List<Point> findIntersections(Ray ray) {
-        return null;
+        List<Point> pointList = null;
+        for (Intersectable item : geometries) {
+            List<Point> itemPointList = item.findIntersections(ray);
+            if (itemPointList != null) {
+                if (pointList == null)
+                    pointList = new LinkedList<>(itemPointList);
+                else
+                    pointList.addAll(itemPointList);
+            }
+        }
+        return pointList;
     }
 }
