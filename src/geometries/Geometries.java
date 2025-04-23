@@ -23,12 +23,22 @@ public class Geometries implements Intersectable {
 
     }
 
+    /**
+     * Finds all intersection points of a given ray with the geometries in the collection.
+     *
+     * @param ray the ray for which intersection points are being searched
+     * @return a list of points where the ray intersects with the geometries,
+     *         or null if there are no intersection points
+     */
     @Override
-
     public List<Point> findIntersections(Ray ray) {
         List<Point> pointList = null;
+
+        // Iterate through each geometry in the collection
         for (Intersectable item : geometries) {
             List<Point> itemPointList = item.findIntersections(ray);
+
+            // If the current geometry has intersection points
             if (itemPointList != null) {
                 if (pointList == null)
                     pointList = new LinkedList<>(itemPointList);
@@ -36,6 +46,9 @@ public class Geometries implements Intersectable {
                     pointList.addAll(itemPointList);
             }
         }
+
+        // Return the list of intersection points, or null if no intersections were found
         return pointList;
     }
+
 }

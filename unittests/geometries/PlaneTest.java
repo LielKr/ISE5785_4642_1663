@@ -87,58 +87,63 @@ class PlaneTest {
     @Test
     void testFindIntersections() {
 
+        // Points and vectors to define the plane and rays
         Point p001 = new Point(0.0, 0.0, 1.0);
         Point p101 = new Point(1.0, 0.0, 1.0);
         Point p011 = new Point(0.0, 1.0, 1.0);
-        Vector v001= new Vector(0.0,0.0,1.0);
+        Vector v001 = new Vector(0.0, 0.0, 1.0);
 
-        Plane plane=new Plane(p001,p101,p011);
-        Plane normalPlane=new Plane(p011,v001);
+        // Define the plane
+        Plane plane = new Plane(p001, p101, p011);
+        Plane normalPlane = new Plane(p011, v001);
 
-        //לא מאונך לא מקביל ולא חותך
+        // ============ Equivalence Partitions Tests ==============
+
+        // TC01: Ray is not perpendicular, not parallel, and does not intersect the plane
         Point p012 = new Point(0.0, 1.0, 2.0);
-        Vector v011= new Vector(0.0,1.0,1.0);
-        Vector v111= new Vector(1.0,1.0,1.0);
+        Vector v111 = new Vector(1.0, 1.0, 1.0);
+        assertNull(plane.findIntersections(new Ray(p012, v111)), "Ray's line does not intersect the plane (case 1)");
 
-        assertNull(plane.findIntersections(new Ray(p012,v111)), "Ray's line out of plane 1");
-
-        //לא מאונך לא מקביל וחותך
+        // TC02: Ray is not perpendicular, not parallel, and intersects the plane
         Point p010 = new Point(0.0, 1.0, 0.0);
-        Vector v033= new Vector(0.0,3.0,3.0);
+        Vector v033 = new Vector(0.0, 3.0, 3.0);
         Point p021 = new Point(0.0, 2.0, 1.0);
         final var exp1 = List.of(p021);
-        final var result1 = plane.findIntersections(new Ray(p010,v033));
-        assertEquals(exp1, result1, "Ray crosses plane");
+        final var result1 = plane.findIntersections(new Ray(p010, v033));
+        assertEquals(exp1, result1, "Ray intersects the plane");
 
-        //לא מאונך לא מקביל והקרן מתחילה בנקודת חיתוך
-        assertNull(plane.findIntersections(new Ray(p011,v033)), "Ray's line out of plane 2");
-        //מתחיל מהנקודה שהמישור מיוצג על ידו
-        assertNull(normalPlane.findIntersections(new Ray(p011,v011)), "Ray's line out of plane");
+        // TC03: Ray is not perpendicular, not parallel, and starts at the intersection point
+        assertNull(plane.findIntersections(new Ray(p011, v033)), "Ray's line does not intersect the plane (case 2)");
 
-        //מקביל ולא חותך
+        // TC04: Ray starts at a point on the plane
+        Vector v011 = new Vector(0.0, 1.0, 1.0);
+        assertNull(normalPlane.findIntersections(new Ray(p011, v011)), "Ray's line does not intersect the plane");
+
+        // =============== Boundary Values Tests =================
+
+        // TC05: Ray is parallel and does not intersect the plane
         Point p002 = new Point(0.0, 0.0, 2.0);
-        Vector v100= new Vector(1.0,0.0,0.0);
-        Ray rayNull=new Ray(p002,v100);
-        assertNull(plane.findIntersections(rayNull), "Ray's line out of plane 3");
+        Vector v100 = new Vector(1.0, 0.0, 0.0);
+        Ray rayNull = new Ray(p002, v100);
+        assertNull(plane.findIntersections(rayNull), "Ray's line does not intersect the plane (case 3)");
 
-        //מקביל ומתלכד
-        Ray rayNull2=new Ray(p001,v100);
-        assertNull(plane.findIntersections(rayNull2), "Ray's line out of plane 4");
+        // TC06: Ray is parallel and lies on the plane
+        Ray rayNull2 = new Ray(p001, v100);
+        assertNull(plane.findIntersections(rayNull2), "Ray's line does not intersect the plane (case 4)");
 
-        //מאונך ולא חותך
-        Vector v003= new Vector(0.0,0.0,3.0);
-        assertNull(plane.findIntersections(new Ray(p002,v003)), "Ray's line out of plane 5");
+        // TC07: Ray is perpendicular to the plane and does not intersect
+        Vector v003 = new Vector(0.0, 0.0, 3.0);
+        assertNull(plane.findIntersections(new Ray(p002, v003)), "Ray's line does not intersect the plane (case 5)");
 
-        //מאונך ונקודת החיתוך
+        // TC08: Ray is perpendicular and starts at the intersection point
+        assertNull(plane.findIntersections(new Ray(p001, v003)), "Ray's line does not intersect the plane");
 
-        assertNull(plane.findIntersections(new Ray(p001,v003)), "Ray's line out of plane");
-
-        //מאונך וחותך
+        // TC09: Ray is perpendicular and intersects the plane
         final var exp2 = List.of(p011);
-        final var result2 = plane.findIntersections(new Ray(p010,v001));
-       assertEquals(exp2, result2, "Ray crosses plane");
-
+        final var result2 = plane.findIntersections(new Ray(p010, v001));
+        assertEquals(exp2, result2, "Ray intersects the plane");
     }
+
 
 
 }
