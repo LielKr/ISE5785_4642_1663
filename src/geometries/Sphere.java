@@ -2,11 +2,13 @@ package geometries;
 
 import java.awt.*;
 import java.util.List;
-
-import primitives.Ray;
 import primitives.Util;
+import primitives.Ray;
+import primitives.Util.*;
 import primitives.Vector;
 import primitives.Point;
+
+import static primitives.Util.alignZero;
 
 /**
  * Represents a sphere in 3D space defined by a center point and a radius.
@@ -35,26 +37,27 @@ public class Sphere extends RadialGeometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray)
-    {
-        Point p0 = ray.getHead();
-        Vector v = ray.getDirection();
-        Vector u;
-        if (p0.equals(center)) {
-            u = v;
-        } else {
-            u = center.subtract(p0);
-        }
+    public List<Point> findIntersections(Ray ray) {
+        Point head = ray.getHead();
+        Vector dir = ray.getDirection();
 
-        double tm= ray.getDirection().dotProduct(u);
-        double d= Util.alignZero(Math.sqrt(u.dotProduct(u)-tm*tm));
-        if(d>=radius){ return null; }
-        double th=Util.alignZero(Math.sqrt(radius * radius - d*d));
-        double t1=tm-th;
-        double t2=tm+th;
-        if(t1>0&&t2>0){return List.of(ray.getPoint(t1),ray.getPoint(t2));}
-        if(t1>0&&t2<0){return List.of(ray.getPoint(t1));}
-        if(t1<0&&t2>0){return List.of(ray.getPoint(t2));}
-        return null;
+        if (head.equals(center))
+            return List.of(ray.getPoint(radius));
+
+        Vector cHead = center.subtract(head);
+        double tm = dir.dotProduct(cHead);
+        double dSquared = cHead.lengthSquared() - tm * tm;
+        double thSquared = radius*radius - dSquared;
+        if (alignZero(thSquared) <= 0)
+            return null;
+
+        double th = Math.sqrt(thSquared); // t1 < t2 (always)
+        double t2 = alignZero(tm + th);
+        if (t2 <= 0) return null;
+
+        double t1 = alignZero(tm - th);
+        return t1 <= 0
+                ? List.of(ray.getPoint(t2))
+                : List.of(ray.getPoint(t1),ray.getPoint(t2));
     }
 }

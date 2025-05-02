@@ -75,12 +75,12 @@ class TriangleTest {
         assertNull(triangle.findIntersections(new Ray(p_110, v0)), "Ray's line is outside the triangle (vertex)");
 
         // TC03: Ray intersects inside the triangle
-        Point p3 = new Point(-0.5, 1.0, -1.0);
-        Vector v333 = new Vector(3.0, 3.0, 3.0);
-        Point p4 = new Point(0.0, 2.0, 0.5);
+        Point p3 = new Point(0.0, 0.0, -1.0);
+        Vector v333 = new Vector(0.38, 1.0, 1.0);
+        Point p4 = new Point(0.38, 1.0, 0.0);
         final var exp1 = List.of(p4);
         final var result1 = triangle.findIntersections(new Ray(p3, v333));
-        //assertEquals(exp1, result1, "Ray intersects the triangle");
+        assertEquals(exp1, result1, "Ray intersects the triangle");
 
         // =============== Boundary Values Tests =================
 
