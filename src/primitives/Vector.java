@@ -7,6 +7,13 @@ package primitives;
  * A zero vector is not allowed.
  */
 public class Vector extends Point {
+    public static final Vector AXIS_X = new Vector(1, 0, 0);
+    public static final Vector AXIS_Y = new Vector(0, 1, 0);
+    public static final Vector AXIS_Z = new Vector(0, 0, 1);
+    public static final Vector MINUS_Y = new Vector(0, -1, 0);
+    public static final Vector MINUS_Z = new Vector(0, 0, -1);
+    public static final Vector MINUS_X = new Vector(-1, 0, 0);
+
 
     /**
      * Constructs a vector from three coordinate values.
