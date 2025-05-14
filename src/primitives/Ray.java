@@ -1,5 +1,6 @@
 package primitives;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -44,11 +45,12 @@ public class Ray {
     public Vector getDirection() {
         return direction;
     }
-    public Point getHead() { return head; }
 
-
-    //המתודה מחשבת נקודה על הישר של הקרן,
-    //במרחק נתון מראש הקרן
+    public Point getHead() {
+        return head;
+    }
+    //The method calculates a point on the line of the beam,
+//at a given distance from the beginning of the beam
     public Point getPoint(double t) {
         // if t is zero, return the head point
         if (Util.isZero(t))
@@ -56,4 +58,7 @@ public class Ray {
         return head.add(direction.scale(t));
     }
 
+    public Point findClosestPoint(List<Point> pointList) {
+        return null;
+    }
 }
