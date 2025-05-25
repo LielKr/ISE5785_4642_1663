@@ -68,18 +68,18 @@ class TriangleTest {
         // TC01: Ray is outside the triangle, on the continuation of an edge
         Point p1 = new Point(0.0, 1.5, -1.0);
         Vector v0 = new Vector(0.0, 0.0, 3.0);
-        assertNull(triangle.findIntersections(new Ray(p1, v0)), "Ray's line is outside the triangle");
+        assertNull(triangle.calculateIntersectionsHelper(new Ray(p1, v0)), "Ray's line is outside the triangle");
 
         // TC02: Ray is outside the triangle, aiming at a vertex
         Point p_110 = new Point(-1.0, 1.0, 0.0);
-        assertNull(triangle.findIntersections(new Ray(p_110, v0)), "Ray's line is outside the triangle (vertex)");
+        assertNull(triangle.calculateIntersectionsHelper(new Ray(p_110, v0)), "Ray's line is outside the triangle (vertex)");
 
         // TC03: Ray intersects inside the triangle
         Point p3 = new Point(0.0, 0.0, -1.0);
         Vector v333 = new Vector(0.38, 1.0, 1.0);
         Point p4 = new Point(0.38, 1.0, 0.0);
         final var exp1 = List.of(p4);
-        final var result1 = triangle.findIntersections(new Ray(p3, v333));
+        final var result1 = triangle.calculateIntersectionsHelper(new Ray(p3, v333));
         assertEquals(exp1, result1, "Ray intersects the triangle");
 
         // =============== Boundary Values Tests =================
@@ -87,17 +87,17 @@ class TriangleTest {
         // TC04: Ray is outside the triangle, on the continuation of an edge
         Point p5 = new Point(-1.0, 0.0, -1.0);
         Vector v303 = new Vector(3.0, 0.0, 3.0);
-        assertNull(triangle.findIntersections(new Ray(p5, v303)), "Ray's line is outside the triangle (edge continuation)");
+        assertNull(triangle.calculateIntersectionsHelper(new Ray(p5, v303)), "Ray's line is outside the triangle (edge continuation)");
 
         // TC05: Ray is outside the triangle, directed at a vertex
         Point p7 = new Point(0.0, 0.0, -1.0);
         Vector v3 = new Vector(-10.0, 2.0, 2.0);
-        assertNull(triangle.findIntersections(new Ray(p7, v3)), "Ray's line is outside the triangle (vertex directed)");
+        assertNull(triangle.calculateIntersectionsHelper(new Ray(p7, v3)), "Ray's line is outside the triangle (vertex directed)");
 
         // TC06: Ray is outside the triangle, directed at an edge
         Point p9 = new Point(-1.0, 0.0, -1.0);
         Vector v4 = new Vector(3.0, 0.0, 2.0);
-        assertNull(triangle.findIntersections(new Ray(p9, v4)), "Ray's line is outside the triangle (edge directed)");
+        assertNull(triangle.calculateIntersectionsHelper(new Ray(p9, v4)), "Ray's line is outside the triangle (edge directed)");
     }
 
 }

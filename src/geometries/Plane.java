@@ -74,7 +74,7 @@ public class Plane extends Geometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         Vector direction = ray.getDirection();
         Point point0 = ray.getHead();
         // if the ray is parallel to the plane or the ray starts on the plane at the point q
@@ -83,7 +83,7 @@ public class Plane extends Geometry {
         double t = normal.dotProduct(q.subtract(point0)) / normal.dotProduct(direction);
 
 
-        return Util.alignZero(t) <= 0d? null : List.of(ray.getPoint(t));
+        return Util.alignZero(t) <= 0d? null : List.of(new Intersection(this,ray.getPoint(t)));
     }
     }
 

@@ -42,7 +42,7 @@ public class CameraRayIntersectionsIntegrationTests {
         int count = 0;
         for (int i = 0; i < 3; ++i)
             for (int j = 0; j < 3; ++j) {
-                var intersections = geo.findIntersections(camera.constructRay(3, 3, j, i));
+                var intersections = geo.calculateIntersections(camera.constructRay(3, 3, j, i));
                 count += intersections == null ? 0 : intersections.size();
             }
         assertEquals(expected, count, "Wrong amount of intersections");

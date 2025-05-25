@@ -22,10 +22,10 @@ public class Triangle extends Polygon {
         super(point1, point2, point3);
 
     }
-
-    public List<Point> findIntersections(Ray ray) {
+    @Override
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         Plane plane = new Plane(vertices.get(0), vertices.get(1), vertices.get(2));
-        if (plane.findIntersections(ray) == null) return null;
+        if (plane.calculateIntersectionsHelper(ray) == null) return null;
         Point p0 = ray.getHead();
         Vector rayDirection = ray.getDirection();
         Vector v1 = vertices.get(0).subtract(p0);
@@ -40,7 +40,7 @@ public class Triangle extends Polygon {
         double d3 = Util.alignZero(n3.dotProduct(rayDirection));
 
         if ((d1 > 0 && d2 > 0 && d3 > 0) || (d1 < 0 && d2 < 0 && d3 < 0)||d1==0&& d2==0||d2==0 && d3==0||d1==0&&d3==0)
-            return plane.findIntersections(ray);
+            return plane.calculateIntersectionsHelper(ray);
         else return null;
 
     }
