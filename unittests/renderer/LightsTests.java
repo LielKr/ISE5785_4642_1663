@@ -243,7 +243,7 @@ class LightsTests {
                 // Spotlight from top-right with sharp beam
                 new SpotLight(new Color(700, 300, 300), new Point(80, 80, 100), new Vector(-1, -1, -2))
                         .setKl(0.001).setKq(0.00005)/*.setNarrowBeam(15)*/
-        ));
+        ));ר
 
         camera1.setResolution(600, 600) //
                 .build() //
