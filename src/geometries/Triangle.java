@@ -20,10 +20,9 @@ public class Triangle extends Polygon {
      */
     public Triangle(Point point1, Point point2, Point point3) {
         super(point1, point2, point3);
-
     }
 
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         Plane plane = new Plane(vertices.get(0), vertices.get(1), vertices.get(2));
         if (plane.findIntersections(ray) == null) return null;
         Point p0 = ray.getHead();
@@ -39,9 +38,17 @@ public class Triangle extends Polygon {
         double d2 = Util.alignZero(n2.dotProduct(rayDirection));
         double d3 = Util.alignZero(n3.dotProduct(rayDirection));
 
-        if ((d1 > 0 && d2 > 0 && d3 > 0) || (d1 < 0 && d2 < 0 && d3 < 0)||d1==0&& d2==0||d2==0 && d3==0||d1==0&&d3==0)
-            return plane.findIntersections(ray);
-        else return null;
+        if ((d1 > 0 && d2 > 0 && d3 > 0) ||
+                (d1 < 0 && d2 < 0 && d3 < 0) ||
+                (d1 == 0 && d2 == 0) ||
+                (d2 == 0 && d3 == 0) ||
+                (d1 == 0 && d3 == 0)) {
 
+            // אם יש חיתוך, צריך להחזיר אותו עם this ולא להשאיר את זה מה-plane
+            List<Point> pts = plane.findIntersections(ray);
+            return pts == null ? null : List.of(new Intersection(this, pts.get(0)));
+        }
+
+        return null;
     }
 }

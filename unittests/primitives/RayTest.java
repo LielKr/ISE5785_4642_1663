@@ -32,54 +32,26 @@ class RayTest {
     }
 
     @Test
-    void testFindClosestPoint() {
-            Ray ray = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
-
-            // ============ Equivalence Partition Test ==============
-
-            List<Point> pointsList = List.of(
-                    new Point(7, 8, 9),
-                    new Point(1, 2, 3),
-                    new Point(4, 5, 6)
-            );
-
-            // TC01: Closest point is in the middle
-            assertEquals(
-                    new Point(1, 2, 3),
-                    ray.findClosestPoint(pointsList),
-                    "Expected the closest point to be (1,2,3)");
-
-            // =============== Boundary Value Tests ==================
-
-            // TC02: No points provided
-            pointsList = List.of();
-            assertNull(
-                    ray.findClosestPoint(pointsList),
-                    "Expected null for an empty list of points");
-
-            // TC03: Closest point is the first in the list
-            pointsList = List.of(
-                    new Point(1, 2, 3),
-                    new Point(7, 8, 9),
-                    new Point(4, 5, 6)
-            );
-            assertEquals(
-                    new Point(1, 2, 3),
-                    ray.findClosestPoint(pointsList),
-                    "Expected the first point (1,2,3) to be the closest");
-
-            // TC04: Closest point is the last in the list
-            pointsList = List.of(
-                    new Point(7, 8, 9),
-                    new Point(4, 5, 6),
-                    new Point(1, 2, 3)
-            );
-            assertEquals(
-                    new Point(1, 2, 3),
-                    ray.findClosestPoint(pointsList),
-                    "Expected the last point (1,2,3) to be the closest");
-        }
-
+    void testFindClosetPoint() {
+        // ============ Equivalence Partitions Tests ==============
+        //TC01: simple check
+        List<Point> pointList = List.of(
+                new Point(0, 0, 0),
+                new Point(1, 1, 1),
+                new Point(2, 2, 2),
+                new Point(3, 3, 3));
+        Ray test = new Ray(new Point(2.2, 2.4, 1.9), new Vector(3, 2.4, 1.9));
+        assertEquals(pointList.get(2), test.findClosestPoint(pointList));
+        // =============== Boundary Values Tests ==================
+        //TC01: null check
+        assertNull(test.findClosestPoint(null));
+        //TC02: first point
+        Ray test2 = new Ray(new Point(0.2, 0.2, 0.2), new Vector(1, 0, 0));
+        assertEquals(pointList.get(0), test2.findClosestPoint(pointList));
+        //TC: last point
+        Ray test3 = new Ray(new Point(4, 4, 4), new Vector(5, 4, 4));
+        assertEquals(pointList.get(3), test3.findClosestPoint(pointList));
+    }
 
 
 }

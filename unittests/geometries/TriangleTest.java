@@ -31,29 +31,25 @@ class TriangleTest {
     Vector v1 = point2.subtract(point1);
     Vector v2 = point3.subtract(point1);
 
-//    /**
-//     * Test method for {@link Triangle#getNormal(Point)}.
-//     * Verifies correct computation of the normal vector.
-//     */
-//    @Test
-//    void testGetNormal() {
-//        // Verify that the computed normal is either v0 or its negation
-//        assertTrue(actualNormal.equals(v0) || actualNormal.equals(v0.scale(-1)), "Normal vector is incorrect");
-//
-//        // Ensure no exception is thrown when retrieving the normal
-//        assertDoesNotThrow(() -> plane.getNormal(point0), "Failed to get normal vector");
-//        assertDoesNotThrow(() -> plane.getNormal(new Point(0.5,0.0,0.0)), "Failed to get normal vector");
-//
-//
-//        // Check that the normal vector has unit length
-//        assertEquals(1.0, actualNormal.length(), 0.00001, "Plane's normal is not a unit vector");
-//
-//        // Ensure that the normal is orthogonal to vector v1
-//        assertEquals(0.0, actualNormal.dotProduct(v1), "Normal is not orthogonal to v1");
-//
-//        // Ensure that the normal is orthogonal to vector v2
-//        assertEquals(0.0, actualNormal.dotProduct(v2), "Normal is not orthogonal to v2");
-//    }
+    /**
+     * Test method for {@link Triangle#getNormal(Point)}
+     */
+    @Test
+    void getNormal() {
+        Point p1 = new Point(1, 1, 1);
+        Point p2 = new Point(3, 6, 9);
+        Point p3 = new Point(4, 3, 6);
+        Triangle triangle = new Triangle(p1, p2, p3);
+        Vector v1 = p1.subtract(p2);
+        Vector v2 = p3.subtract(p2);
+        double accuracy = 0.00001;
+        Vector normal = triangle.getNormal(v1);
+        // ============ Equivalence Partitions Tests ==============
+        // Test Case 1 - Checking the normal vector for correctness
+        assertEquals(0, v1.dotProduct(normal), accuracy, "ERROR: getNormal() the normal vector isn't orthogonal to plane vectors");
+        assertEquals(0, v2.dotProduct(normal), accuracy, "ERROR: getNormal() the normal vector isn't orthogonal to plane vectors");
+        assertEquals(1, normal.length(), accuracy, "ERROR: getNormal() the normal vector isn't normalized");
+    }
 
     @Test
     void testFindIntersections() {

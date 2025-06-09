@@ -2,20 +2,34 @@ package scene;
 
 import geometries.Geometries;
 import lighting.AmbientLight;
+import lighting.LightSource;
 import primitives.Color;
 import primitives.Point;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class Scene {
     public String sceneName;
     public Color background = Color.BLACK;
-    public AmbientLight ambientLight = AmbientLight.NONE;
+    public AmbientLight ambientLight = AmbientLight.NONE; //העוצמה של התאורה הסביבתית
     public Geometries geometries = new Geometries();
+    public List<LightSource> lights=new LinkedList<>();
 
     public Scene(String sceneName) {
         this.sceneName = sceneName;
     }
-
+    /**
+     * Sets the scene lights
+     * @param lights the lights
+     * @return this scene
+     */
+    public Scene setLights(List<LightSource> lights) {
+        if(lights != null)
+            this.lights = lights;
+        return this;
+    }
     public Scene setBackground(Color color) {
         this.background = color;
         return this;

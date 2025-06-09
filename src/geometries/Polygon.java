@@ -88,13 +88,19 @@ public class Polygon extends Geometry {
         }
     }
 
+//    @Override
+//    public Vector getNormal(Point point) {
+//        return plane.getNormal(point);
+//    }
     @Override
     public Vector getNormal(Point point) {
-        return plane.getNormal(point);
+        Vector edge1 = vertices.get(1).subtract(vertices.get(0));
+        Vector edge2 = vertices.get(2).subtract(vertices.get(0));
+        return edge1.crossProduct(edge2).normalize();
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         return null;
     }
 

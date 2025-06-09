@@ -2,6 +2,7 @@ package primitives;
 
 import java.util.List;
 import java.util.Objects;
+import geometries.Intersectable.Intersection;
 
 /**
  * Represents a ray in 3D space defined by an origin point and a direction vector.
@@ -58,21 +59,81 @@ public class Ray {
         return head.add(direction.scale(t));
     }
 
-    public Point findClosestPoint(List<Point> pointList) {
-        if ( pointList==null || pointList.isEmpty()) {
+//    public Intersection findClosestIntersection(List<Intersection> intersections) {
+//        if (intersections == null) {
+//            return null;
+//        }
+//
+//        Intersection closest = intersections.getFirst();
+//        double minDistanceSquared = closest.point.distanceSquared(getHead());
+//
+//        for (var intersection : intersections) {
+//            double distance = intersection.point.distanceSquared(getHead());
+//            if (distance < minDistanceSquared) {
+//                closest = intersection;
+//                minDistanceSquared = distance;
+//            }
+//        }
+//
+//        return closest;
+//    }
+
+
+
+//    public Intersection findClosestIntersection(List<Intersection> intersections) {
+//        if (intersections == null)
+//            return null;
+//        Intersection closestIntersection = null;
+//        double minDistance = Double.POSITIVE_INFINITY;
+//        for (Intersection intersection : intersections) {
+//            double distance = intersection.point.distanceSquared(head);
+//            if (distance < minDistance) {
+//                minDistance = distance;
+//                closestIntersection = intersection;
+//            }
+//        }
+//        return closestIntersection;
+//    }
+
+    public Intersection findClosestIntersection(List<Intersection> IntersectionList) {
+        double minDistance, nowDistance;
+        int index = 0;
+        if (IntersectionList == null) {
             return null;
         }
-        Point closest = pointList.getFirst();
-        double minDistanceSquared = closest.distanceSquared(getHead());
-        for (var point1 : pointList) {
-            if (point1.distanceSquared(getHead()) < minDistanceSquared) {
-                closest = point1;
-                minDistanceSquared=point1.distanceSquared(getHead());
+
+        minDistance = this.head.distance(IntersectionList.getFirst().point);
+
+        for (int i = 1; i < IntersectionList.size(); i++) {
+            nowDistance = this.head.distance(IntersectionList.get(i).point);
+            if (minDistance > nowDistance) {
+                minDistance = nowDistance;
+                index = i;
             }
         }
-        return closest;
+        return IntersectionList.get(index);
     }
 
+
+    public Point findClosestPoint(List<Point> points) {
+        return points == null ? null
+                : findClosestIntersection(points.stream().map(p -> new Intersection(null, p)).toList()).point;
+    }
+
+    private static final double DELTA = 0.1;
+    /**
+     * Constructs a ray with a small offset from the point in the direction of the normal.
+     * Used to avoid self-intersection when casting secondary rays.
+     *
+     * @param p      the origin point of the ray
+     * @param dir    the direction vector (assumed to be normalized)
+     * @param normal the normal at the point (used to offset the start)
+     */
+    public Ray(Point p, Vector dir, Vector normal) {
+        Vector delta = normal.scale(dir.dotProduct(normal) > 0 ? DELTA : -DELTA);
+        this.head = p.add(delta);
+        this.direction = dir.normalize();
+    }
 
 
 }
