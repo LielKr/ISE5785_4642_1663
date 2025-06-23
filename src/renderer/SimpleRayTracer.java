@@ -265,6 +265,12 @@ public class SimpleRayTracer extends RayTracerBase {
         Color color = Color.BLACK; // Do not include emission here to avoid duplication
 
         for (LightSource lightSource : scene.lights) {
+            Vector l = lightSource.getL(intersection.point);
+            Vector n = intersection.normalBeforeHit;
+
+            if (n.dotProduct(l) * intersection.rayDirection.dotProduct(n) <= 0)
+                continue; // Skip if angle is wrong between normal, light, and view
+
             if (!setLightSource(intersection, lightSource))
                 continue;
 
@@ -278,10 +284,10 @@ public class SimpleRayTracer extends RayTracerBase {
                     iL.scale(calcSpecular(intersection))
             );
         }
-        //System.out.println("Local color: " + color);
 
         return color;
     }
+
 
 
     /**
@@ -329,4 +335,27 @@ public class SimpleRayTracer extends RayTracerBase {
     }
 
 
+//    /**
+//     * Calculates the shadow intensity at a given intersection point.
+//     * note: this function is not used in the current implementation,
+//     *       it is replaced by the transparency function.
+//     *
+//     * @param intersection the intersection point
+//     * @return the shadow intensity
+//     */
+//    @SuppressWarnings("unused")
+//    private boolean unshaded(Intersection intersection)
+//    {
+//        Vector lightDirection = intersection.lightDirection.scale(-1);
+//        Ray lightRay = new Ray(intersection.point, lightDirection,intersection.normal);
+//        List<Intersection> intersections = scene.geometries.calculateIntersections(lightRay);
+//        if(intersections == null) return true; // no intersection with any geometry
+//        // Check if the light source is blocked by any other geometry
+//        double distance = intersection.light.getDistance(lightRay.getHead());
+//        for (Intersection i : intersections) {
+//            if (i.point.distance(lightRay.getHead())<distance&&
+//                    i.material.kT.lowerThan(MIN_CALC_COLOR_K)) return false;
+//        }
+//        return true;
+//    }
 }
