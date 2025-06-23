@@ -20,7 +20,7 @@ class LightsTests {
     LightsTests() { /* to satisfy JavaDoc generator */ }
 
     /** First scene for some of tests */
-    private final Scene          scene1                  = new Scene("Test scene");
+    private final Scene          scene1                  = new Scene("Test scene").setAmbientLight(new AmbientLight(new Color(38, 38, 38)));
     /** Second scene for some of tests */
     private final Scene          scene2                  = new Scene("Test scene")
             .setAmbientLight(new AmbientLight(new Color(38, 38, 38)));
@@ -36,7 +36,8 @@ class LightsTests {
     private final Camera.Builder camera2                 = Camera.getBuilder()                                          //
             .setRayTracer(scene2, RayTracerType.SIMPLE)                                                                      //
             .setLocation(new Point(0, 0, 1000))                                                                              //
-            .setDirection(Point.ZERO, Vector.AXIS_Y)                                                                         //
+            //.setDirection(Point.ZERO, Vector.AXIS_Y)//************************************************************************8
+            .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
             .setVpSize(200, 200).setVpDistance(1000);
 
     /** Shininess value for most of the geometries in the tests */
@@ -90,12 +91,11 @@ class LightsTests {
     private final Geometry       sphere                  = new Sphere(sphereCenter, SPHERE_RADIUS)
             .setEmission(sphereColor).setMaterial(new Material().setKD(KD).setKS(KS).setShininess(SHININESS));
     /** The first triangle in appropriate tests */
-    private final Geometry       triangle1               = new Triangle(vertices[0], vertices[1], vertices[2])
-            .setMaterial(material);
+    private final Geometry       triangle1               = new Triangle(vertices[3], vertices[1], vertices[0])
+           .setMaterial(material);
     /** The first triangle in appropriate tests */
-    private final Geometry       triangle2               = new Triangle(vertices[0], vertices[1], vertices[3])
+    private final Geometry       triangle2               = new Triangle(vertices[2], vertices[1], vertices[0])
             .setMaterial(material);
-
     /** Produce a picture of a sphere lighted by a directional light */
     @Test
     void sphereDirectional() {
@@ -211,6 +211,7 @@ class LightsTests {
         scene2.lights.addAll(List.of(
                 // Neutral white directional light from the front
                 new DirectionalLight(new Color(500, 500, 500), new Vector(-1, -1, -1)),
+                new DirectionalLight(new Color(200, 200, 255), new Vector(0, 0, -1)),
 
                 // Greenish point light from left-top
                 new PointLight(new Color(0, 600, 200), new Point(-80, 80, -50))
@@ -218,7 +219,7 @@ class LightsTests {
 
                 // Reddish spotlight from bottom-right
                 new SpotLight(new Color(800, 200, 200), new Point(100, -100, 0), new Vector(-2, 2, -2))
-                        .setKl(0.001).setKq(0.0001)/*.setNarrowBeam(12)*/
+                        .setKl(0.001).setKq(0.0001).setBeamExponent(12)
         ));
 
         camera2.setResolution(600, 600) //
@@ -230,25 +231,67 @@ class LightsTests {
     /// Test rendering a sphere with strong and distinct multiple light sources
     @Test
     void sphereMultipleLights() {
+        // הוספת AmbientLight
+        scene1.setAmbientLight(new AmbientLight(new Color(50, 50, 50)));
         scene1.geometries.add(sphere);
+        // נקודות מקור האור
+        Point lightPos1 = new Point(-50, -50, 25);  // שמאל-מלמעלה
+        Point lightPos2 = new Point(50, 50, 25);    // ימין-מלמעלה
+
+        // חישוב כיוונים נכונים לכדור (מהאור לכדור)
+        Vector dir1 = sphereCenter.subtract(lightPos1).normalize(); // (0,0,-50) - (-50,-50,25) = (50,50,-75)
+        Vector dir2 = sphereCenter.subtract(lightPos2).normalize(); // (0,0,-50) - (50,50,25) = (-50,-50,-75)
 
         scene1.lights.addAll(List.of(
-                // Warm directional light from behind-right
-                new DirectionalLight(new Color(300, 150, 0), new Vector(1, -1, -1)),
+                // DirectionalLight - אור כיווני חזק
+                new DirectionalLight(new Color(600, 300, 100), new Vector(1, 1, -1)),
 
-                // Cool point light from the left side
-                new PointLight(new Color(0, 300, 800), new Point(-100, 0, 50))
-                        .setKl(0.0005).setKq(0.0001),
+                // PointLight - במקום שמשתמשים בו בטסטים האחרים
+                new PointLight(new Color(800, 500, 0), lightPos1) // משתמש במיקום המוגדר כבר
+                        .setKl(0.001).setKq(0.0002),
 
-                // Spotlight from top-right with sharp beam
-                new SpotLight(new Color(700, 300, 300), new Point(80, 80, 100), new Vector(-1, -1, -2))
-                        .setKl(0.001).setKq(0.00005)/*.setNarrowBeam(15)*/
-        ));ר
+                // SpotLight - גם במקום שמשתמשים בו בטסטים האחרים
+                new SpotLight(new Color(800, 400, 400), sphereLightPosition, dir2) // משתמש במיקום וכיוון המוגדרים
+                        .setKl(0.001).setKq(0.0001).setBeamExponent(5)
+        ));
 
-        camera1.setResolution(600, 600) //
-                .build() //
-                .renderImage() //
+        camera1.setResolution(600, 600)
+                .build()
+                .renderImage()
                 .writeToImage("enhancedLightSphereMultiple");
+    }
+
+    // או גרסה עם חישוב כיוונים נכונים:
+    @Test
+    void sphereMultipleLightsFixed() {
+        scene1.setAmbientLight(new AmbientLight(new Color(50, 50, 50)));
+        scene1.geometries.add(sphere);
+
+        // נקודות מקור האור
+        Point lightPos1 = new Point(-50, -50, 25);  // שמאל-מלמעלה
+        Point lightPos2 = new Point(50, 50, 25);    // ימין-מלמעלה
+
+        // חישוב כיוונים נכונים לכדור (מהאור לכדור)
+        Vector dir1 = sphereCenter.subtract(lightPos1).normalize(); // (0,0,-50) - (-50,-50,25) = (50,50,-75)
+        Vector dir2 = sphereCenter.subtract(lightPos2).normalize(); // (0,0,-50) - (50,50,25) = (-50,-50,-75)
+
+        scene1.lights.addAll(List.of(
+                // DirectionalLight - אור כללי
+                new DirectionalLight(new Color(400, 400, 400), new Vector(1, 1, -1)),
+
+                // PointLight - אור נקודתי חזק
+                new PointLight(new Color(800, 400, 200), lightPos1)
+                        .setKl(0.001).setKq(0.0002),
+
+                // SpotLight - זרקור מכוון לכדור
+                new SpotLight(new Color(600, 600, 800), lightPos2, dir2)
+                        .setKl(0.001).setKq(0.0001).setBeamExponent(3)
+        ));
+
+        camera1.setResolution(600, 600)
+                .build()
+                .renderImage()
+                .writeToImage("sphereMultipleLightsFixed");
     }
 
 

@@ -27,6 +27,14 @@ public class Tube extends RadialGeometry {
         this.axis = axis;
     }
 
+    /**
+     * This method calculates the normal vector to a point on the surface of the tube.
+     * It first calculates the projection of the point onto the axis of the tube and then
+     * returns the normalized vector from the center of the tube to the given point.
+     *
+     * @param point the point on the surface of the tube where the normal vector is calculated.
+     * @return the normalized vector pointing from the center of the tube to the given point.
+     */
     @Override
     public Vector getNormal(Point point) {
         //calculate the projection of the point on the axis
@@ -38,6 +46,13 @@ public class Tube extends RadialGeometry {
         return point.subtract(this.axis.getPoint(t)).normalize();
     }
 
+    /**
+     * This method is used to calculate intersections between the ray and the tube.
+     * Currently, it is not implemented and returns null.
+     *
+     * @param ray the ray to check for intersections with the tube.
+     * @return null, as the method is not yet implemented.
+     */
     @Override
     public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         return null;

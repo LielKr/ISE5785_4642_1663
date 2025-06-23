@@ -23,17 +23,20 @@ public class PointLight extends Light implements LightSource {
         this.position = position;
     }
 
+
     @Override
     public Vector getL(Point p) {
-        // Return normalized direction from point p to the light source
-        return position.subtract(p).normalize();
+        if (p.equals(position)) {
+            throw new IllegalArgumentException("The point cannot be equal to the position of the point light.");
+        }
+        return p.subtract(position).normalize();
     }
 
     @Override
     public Color getIntensity(Point p) {
         // Compute attenuation based on distance and scale the light's color
-        double attenuation = getAttenuation(p);
-        return intensity.scale(1 / attenuation);
+        double d = getDistance(p);
+        return intensity.scale(1 / (kC + kL * d + kQ * d * d));
     }
 
     /**
@@ -69,19 +72,12 @@ public class PointLight extends Light implements LightSource {
         return this;
     }
 
-    /**
-     * Computes the attenuation factor (a double) based on the distance to point p.
-     *
-     * @param p The point where intensity is calculated
-     * @return Attenuation factor (always >= 1)
-     */
-    protected double getAttenuation(Point p) {
-        double dSquared = position.distanceSquared(p);
-        double d = Math.sqrt(dSquared);
-        return kC + kL * d + kQ * dSquared;
-    }
+
     @Override
     public double getDistance(Point p) {
+        if (p.equals(position)) {
+            throw new IllegalArgumentException("The point cannot be equal to the position of the point light.");
+        }
         return p.distance(this.position); // assuming this.position exists
     }
 

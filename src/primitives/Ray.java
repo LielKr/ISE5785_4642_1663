@@ -95,23 +95,23 @@ public class Ray {
 //        return closestIntersection;
 //    }
 
-    public Intersection findClosestIntersection(List<Intersection> IntersectionList) {
+    public Intersection findClosestIntersection(List<Intersection> intersectionList) {
         double minDistance, nowDistance;
         int index = 0;
-        if (IntersectionList == null) {
+        if (intersectionList == null) {
             return null;
         }
 
-        minDistance = this.head.distance(IntersectionList.getFirst().point);
+        minDistance = this.head.distance(intersectionList.getFirst().point);
 
-        for (int i = 1; i < IntersectionList.size(); i++) {
-            nowDistance = this.head.distance(IntersectionList.get(i).point);
+        for (int i = 1; i < intersectionList.size(); i++) {
+            nowDistance = this.head.distance(intersectionList.get(i).point);
             if (minDistance > nowDistance) {
                 minDistance = nowDistance;
                 index = i;
             }
         }
-        return IntersectionList.get(index);
+        return intersectionList.get(index);
     }
 
 

@@ -99,6 +99,13 @@ public class Polygon extends Geometry {
         return edge1.crossProduct(edge2).normalize();
     }
 
+    /**
+     * This method calculates the intersections between a ray and a plane.
+     * It returns the intersection point(s) if any, or null if no intersection occurs.
+     *
+     * @param ray the ray to check for intersections with the plane.
+     * @return a list of intersections between the ray and the plane, or null if no intersection exists.
+     */
     @Override
     public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         return null;

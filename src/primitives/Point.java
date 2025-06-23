@@ -38,14 +38,14 @@ public class Point {
     /**
      * Returns a vector from the given point to this point.
      *
-     * @param point1 the point to subtract
+     * @param point the point to subtract
      * @return the resulting vector
      */
-    public Vector subtract(Point point1) {
-        if (this.equals(point1)) {
+    public Vector subtract(Point point) {
+        if (this.equals(point)) {
             throw new IllegalArgumentException("Cannot create a zero vector from two identical points");
         }
-        return new Vector(xyz.subtract(point1.xyz));
+        return new Vector(xyz.subtract(point.xyz));
     }
 
     /**

@@ -20,8 +20,18 @@ public class Triangle extends Polygon {
      */
     public Triangle(Point point1, Point point2, Point point3) {
         super(point1, point2, point3);
+
     }
 
+    /**
+     * This method calculates the intersections between a ray and a triangle defined by three vertices.
+     * It first checks for intersection with the plane of the triangle and then checks if the ray
+     * intersects the triangle itself by evaluating the sign of the dot products with the triangle's edges.
+     * If an intersection occurs, the method returns the intersection point(s).
+     *
+     * @param ray the ray to check for intersections with the triangle.
+     * @return a list of intersection points between the ray and the triangle, or null if no intersection exists.
+     */
     public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         Plane plane = new Plane(vertices.get(0), vertices.get(1), vertices.get(2));
         if (plane.findIntersections(ray) == null) return null;

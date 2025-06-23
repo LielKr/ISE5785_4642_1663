@@ -122,27 +122,13 @@ public class SimpleRayTracer extends RayTracerBase {
     private boolean preprocessIntersection(Intersection intersection, Vector direction) {
         intersection.rayDirection = direction;
         intersection.normalBeforeHit = intersection.geometry.getNormal(intersection.point);
-        if (intersection.rayDirection.dotProduct(intersection.normalBeforeHit) > 0)
-            intersection.normalBeforeHit = intersection.normalBeforeHit.scale(-1);
+//        if (intersection.rayDirection.dotProduct(intersection.normalBeforeHit) > 0)
+//            intersection.normalBeforeHit = intersection.normalBeforeHit.scale(-1);
         intersection.rayNormalDotProduct = alignZero(direction.dotProduct(intersection.normalBeforeHit));
         //System.out.println("✅ n·v = " + intersection.vNormal);
 
         return (intersection.rayNormalDotProduct != 0);
     }
-//    private boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
-//        intersection.rayDirection = rayDirection;
-//        intersection.normal = intersection.geometry.getNormal(intersection.point);
-//        intersection.vNormal = alignZero(intersection.rayDirection.dotProduct(intersection.normal));
-//
-//        // תיקון חשוב: אם הקרן מגיעה מהצד השני של הנורמל, נהפוך את הנורמל
-//        if (intersection.vNormal < 0) {
-//            intersection.normal = intersection.normal.scale(-1);
-//            intersection.vNormal = -intersection.vNormal;
-//        }
-//
-//        intersection.rayNormalDotProduct = intersection.vNormal;
-//        return !isZero(intersection.vNormal);
-//    }
 
 
     private boolean setLightSource(Intersection intersection, LightSource lightSource) {
@@ -153,18 +139,6 @@ public class SimpleRayTracer extends RayTracerBase {
 
         return intersection.lightNormalDotProduct * intersection.rayNormalDotProduct > 0;
     }
-//private boolean setLightSource(Intersection intersection, LightSource lightSource) {
-//    intersection.lightSource = lightSource;
-//    intersection.lightDirection = lightSource.getL(intersection.point);
-//    intersection.lightNormalDotProduct = alignZero(intersection.lightDirection.dotProduct(intersection.normal));
-//    return alignZero(intersection.rayNormalDotProduct * intersection.lightNormalDotProduct) > 0;
-//}
-//private Boolean setLightSource(Intersection intersection, LightSource lightSource) {
-//    intersection.lightSource = lightSource;
-//    intersection.lightDirection = lightSource.getL(intersection.point);
-//    intersection.lightNormalDotProduct = intersection.lightDirection.dotProduct(intersection.normalBeforeHit);
-//    return Util.alignZero(intersection.vNormal * intersection.lightNormalDotProduct) > 0;
-//}
 
 
 
@@ -183,6 +157,15 @@ public class SimpleRayTracer extends RayTracerBase {
         double lightDistance = light.getDistance(intersection.point);
 
         List<Intersection> intersections = scene.geometries.calculateIntersections(lightRay);
+        ////////////////////////////////////////////
+        //פונקציה שמסננת את כל מי שמעבר לlight s
+        if (intersections == null) return Double3.ONE;
+
+        intersections = intersections.stream()
+                .filter(i -> i.point.distance(intersection.point) <= lightDistance)
+                .toList();
+
+
         if (intersections == null) return Double3.ONE;
 
         Double3 ktr = Double3.ONE;

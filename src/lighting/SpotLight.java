@@ -2,6 +2,8 @@ package lighting;
 
 import primitives.*;
 
+import static primitives.Util.alignZero;
+
 /**
  * A spotlight is a {@link PointLight} with a specific direction.
  * <p>
@@ -51,76 +53,41 @@ public class SpotLight extends PointLight {
         return this;
     }
 
-    /**
-     * Sets the constant attenuation factor.
-     * Overrides to return {@code SpotLight} type for method chaining.
-     *
-     * @param kC the constant attenuation coefficient
-     * @return this {@code SpotLight} instance
-     */
     @Override
     public SpotLight setKc(double kC) {
         super.setKc(kC);
         return this;
     }
 
-    /**
-     * Sets the linear attenuation factor.
-     * Overrides to return {@code SpotLight} type for method chaining.
-     *
-     * @param kL the linear attenuation coefficient
-     * @return this {@code SpotLight} instance
-     */
     @Override
     public SpotLight setKl(double kL) {
         super.setKl(kL);
         return this;
     }
 
-    /**
-     * Sets the quadratic attenuation factor.
-     * Overrides to return {@code SpotLight} type for method chaining.
-     *
-     * @param kQ the quadratic attenuation coefficient
-     * @return this {@code SpotLight} instance
-     */
     @Override
     public SpotLight setKq(double kQ) {
         super.setKq(kQ);
         return this;
     }
 
-    /**
-     * Computes the color intensity of the spotlight at a given point.
-     * <p>
-     * The intensity is calculated by combining the attenuation due to distance
-     * (as in {@link PointLight}) and the angle between the spotlight direction
-     * and the vector to the point.
-     *
-     * @param p the point to evaluate the light's intensity at
-     * @return the resulting {@code Color} at the point
-     */
+
     @Override
-    public Color getIntensity(Point p) {
-        // Vector from light to point
-        Vector lightToPointNormalized = super.getL(p).scale(-1);
-
-        // Cosine of angle between spotlight direction and direction to point
-        double cosAlpha = this.direction.dotProduct(lightToPointNormalized);
-
-        // If the angle is greater than 90° or nearly zero, no light is emitted
-        if (Util.isZero(cosAlpha) || cosAlpha <= 0) {
+    public Color getIntensity(Point p)
+    {
+        Color pointIntensity = super.getIntensity(p);
+        Vector lightToPoint = getL(p);
+        double cosAlpha = direction.dotProduct(lightToPoint);
+        if (alignZero(cosAlpha)<=0)
+        {
             return Color.BLACK;
         }
 
-        // Base intensity from PointLight (includes attenuation)
-        Color intensityFromPointLight = super.getIntensity(p);
-
-        // Apply beam concentration using the exponent
-        double beamFactor = (this.beamExponent == 1.0) ?
-                cosAlpha :
-                Math.pow(cosAlpha, this.beamExponent);
-
-        return intensityFromPointLight.scale(beamFactor);
+       double exp=1.0;
+       if(beamExponent!=1.0) {
+       cosAlpha=alignZero(Math.pow(cosAlpha, beamExponent));
+       }
+        return pointIntensity.scale(cosAlpha);
     }
 }
+

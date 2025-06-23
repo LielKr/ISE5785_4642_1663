@@ -156,6 +156,15 @@ public class Camera implements Cloneable {
         private final Camera camera = new Camera();
         private Point target = null;
 
+        /**
+         * Sets the direction vectors for the camera.
+         * The vectors vTo and vUp must be orthogonal, otherwise an IllegalArgumentException will be thrown.
+         *
+         * @param vTo the forward direction vector of the camera.
+         * @param vUp the upward direction vector of the camera.
+         * @return the Builder instance to allow method chaining.
+         * @throws IllegalArgumentException if the vectors are not orthogonal.
+         */
         public Builder setDirection(Vector vTo, Vector vUp) {
             if (!isZero(vTo.dotProduct(vUp))) {
                 throw new IllegalArgumentException("Direction vectors must be orthogonal");
@@ -167,6 +176,12 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets the target point for the camera's direction.
+         *
+         * @param target the point the camera will look at.
+         * @return the Builder instance to allow method chaining.
+         */
         public Builder setDirection(Point target) {
             this.target = target;
             camera.vTo = null;
@@ -175,6 +190,13 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets the target point and upward direction for the camera.
+         *
+         * @param target the point the camera will look at.
+         * @param vUp the upward direction vector of the camera.
+         * @return the Builder instance to allow method chaining.
+         */
         public Builder setDirection(Point target, Vector vUp) {
             this.target = target;
             camera.vUp = vUp.normalize();
@@ -183,11 +205,24 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets the location of the camera.
+         *
+         * @param p0 the location of the camera.
+         * @return the Builder instance to allow method chaining.
+         */
         public Builder setLocation(Point p0) {
             camera.p0 = p0;
             return this;
         }
 
+        /**
+         * Sets the distance to the view plane.
+         *
+         * @param distance the distance from the camera to the view plane.
+         * @return the Builder instance to allow method chaining.
+         * @throws IllegalArgumentException if the distance is not positive.
+         */
         public Builder setVpDistance(double distance) {
             if (alignZero(distance) <= 0) {
                 throw new IllegalArgumentException("Distance must be positive");
@@ -196,6 +231,14 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets the size of the view plane (width and height).
+         *
+         * @param width the width of the view plane.
+         * @param height the height of the view plane.
+         * @return the Builder instance to allow method chaining.
+         * @throws IllegalArgumentException if either the width or height is not positive.
+         */
         public Builder setVpSize(double width, double height) {
             if (alignZero(width) <= 0 || alignZero(height) <= 0) {
                 throw new IllegalArgumentException("Width and height must be positive");
@@ -205,6 +248,14 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets the resolution of the camera.
+         *
+         * @param nX the number of pixels in the x-direction.
+         * @param nY the number of pixels in the y-direction.
+         * @return the Builder instance to allow method chaining.
+         * @throws IllegalArgumentException if either nX or nY is not positive.
+         */
         public Builder setResolution(int nX, int nY) {
             if (nX <= 0 || nY <= 0) {
                 throw new IllegalArgumentException("Resolution values must be positive");
@@ -214,6 +265,13 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets the ray tracer for the camera.
+         *
+         * @param scene the scene that will be rendered.
+         * @param rayTracerType the type of the ray tracer to use (e.g., SIMPLE).
+         * @return the Builder instance to allow method chaining.
+         */
         public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
             if (rayTracerType == RayTracerType.SIMPLE) {
                 camera.rayTracer = new SimpleRayTracer(scene);
@@ -223,6 +281,12 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Builds the Camera instance after all necessary settings have been applied.
+         *
+         * @return the built Camera object.
+         * @throws IllegalStateException if required fields are not set correctly.
+         */
         public Camera build() {
             try {
                 validate(camera);
@@ -244,6 +308,12 @@ public class Camera implements Cloneable {
             }
         }
 
+        /**
+         * Validates the camera configuration to ensure all required fields are set correctly.
+         *
+         * @param camera the camera instance to validate.
+         * @throws IllegalStateException if any required fields are not set or invalid.
+         */
         private void validate(Camera camera) {
             if (camera.width == 0 || camera.height == 0) {
                 throw new IllegalStateException("View plane size is not set");
@@ -285,6 +355,13 @@ public class Camera implements Cloneable {
             target = null;
         }
 
+        /**
+         * Checks if two vectors are orthogonal.
+         *
+         * @param v1 the first vector.
+         * @param v2 the second vector.
+         * @return true if the vectors are orthogonal, false otherwise.
+         */
         private boolean isOrthogonal(Vector v1, Vector v2) {
             return isZero(v1.dotProduct(v2));
         }

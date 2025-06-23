@@ -25,14 +25,16 @@ public class DirectionalLight extends Light implements LightSource {
     public Vector getL(Point p) {
         // Return direction FROM point TO light source
         // For directional light, this is opposite to the light's direction
-        return direction.scale(-1);
+        return direction.normalize();
     }
 
     @Override
     public Color getIntensity(Point p) {
         // No attenuation with distance for directional light; intensity is constant.
-        return intensity;
+        return getIntensity();
     }
+
+
     @Override
     public double getDistance(Point p) {
         return Double.POSITIVE_INFINITY; // כיוון שהוא אור מקבילי ואין לו מיקום
