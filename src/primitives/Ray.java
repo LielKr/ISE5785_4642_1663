@@ -120,7 +120,7 @@ public class Ray {
                 : findClosestIntersection(points.stream().map(p -> new Intersection(null, p)).toList()).point;
     }
 
-    private static final double DELTA = 0.1;
+    public static final double DELTA = 0.1;
     /**
      * Constructs a ray with a small offset from the point in the direction of the normal.
      * Used to avoid self-intersection when casting secondary rays.

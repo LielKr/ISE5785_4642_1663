@@ -19,7 +19,7 @@ public class SimpleRayTracer extends RayTracerBase {
 
     private static final int MAX_CALC_COLOR_LEVEL = 10;
     private static final double MIN_CALC_COLOR_K = 0.001;
-    private static final Double3 INITIAL_K = Double3.ONE;
+    private static final Double3 INITIAL_K = Double3.ONE;   //תנאי העצירה של מקדם ההנחתה המצטבר
 
     /**
      * Constructs a SimpleRayTracer with the given scene.
@@ -67,6 +67,45 @@ public class SimpleRayTracer extends RayTracerBase {
         return true; // No object blocked the light, point is illuminated
     }
 
+    /**
+     * Calculates the overall transparency (ktr) from the intersection point to the light source.
+     * If the transparency drops below MIN_CALC_COLOR_K, the light is mostly blocked.
+     *
+     * @param intersection the intersection point to check for partial shadow
+     * @return the cumulative transparency (Double3) from the point to the light
+     */
+    //*******************************************************************************
+    private Double3 transparency(Intersection intersection) {
+        Vector l = intersection.lightSource.getL(intersection.point);
+        Vector lightDirection = l.scale(-1);
+
+        // Create shadow ray with offset using the new Ray constructor
+        Ray shadowRay = new Ray(intersection.point, lightDirection, intersection.normalBeforeHit);
+
+        double lightDistance = intersection.lightSource.getDistance(intersection.point);
+        List<Intersection> shadowIntersections = scene.geometries.calculateIntersections(shadowRay);
+
+        if (shadowIntersections == null) return Double3.ONE;
+
+        Double3 ktr = Double3.ONE;
+
+        for (Intersection shadowIntersection : shadowIntersections) {
+            double d = shadowIntersection.point.distance(intersection.point);
+
+            // Consider only intersections before the light source
+            if (d < lightDistance) {
+                ktr = ktr.product(shadowIntersection.geometry.getMaterial().kT);
+                if (ktr.lowerThan(MIN_CALC_COLOR_K)) {
+                    return Double3.ZERO;
+                }
+            }
+        }
+
+        return ktr;
+    }
+    //*********************************************************************************************
+
+
 
     /**
      * Finds the closest intersection point between the ray and the scene.
@@ -76,7 +115,7 @@ public class SimpleRayTracer extends RayTracerBase {
      */
     private Intersection findClosestIntersection(Ray ray) {
         List<Intersection> intersections = scene.geometries.calculateIntersections(ray);
-        if (intersections == null || intersections.isEmpty()) {
+        if (intersections == null) { // || intersections.isEmpty()
             return null;
         }
         return findClosestIntersection(intersections, ray);
@@ -253,6 +292,26 @@ public class SimpleRayTracer extends RayTracerBase {
         return ambientAndEmission.add(localEffects).add(globalEffects);
     }
 
+//    /**
+//     * constructs a refracted ray at a given intersection point.
+//     *
+//     * @param intersection the intersection point
+//     */
+//    public Ray constructRefractedRay(Intersection intersection)
+//    {
+//        return new Ray(intersection.point,intersection.v,intersection.normal);
+//    }
+//    /**
+//     * Constructs a reflected ray at a given intersection point.
+//     *
+//     * @param intersection the intersection point
+//     * @return the reflected ray
+//     */
+//    public Ray constructReflectedRay(Intersection intersection)
+//    {
+//        Vector r=intersection.v.subtract(intersection.normal.scale(intersection.vNormal).scale(2d)).normalize();
+//        return new Ray(intersection.point,r,intersection.normal);
+//    }
 
     /**
      * Calculates the local lighting effects (diffuse and specular) at a given intersection point.
@@ -273,8 +332,9 @@ public class SimpleRayTracer extends RayTracerBase {
 
             if (!setLightSource(intersection, lightSource))
                 continue;
-
-            Double3 ktr = transparency(intersection, lightSource); // Calculate transparency
+            //Double3 ktr = transparency(intersection, lightSource);
+            intersection.lightSource = lightSource;
+            Double3 ktr = transparency(intersection);
             if (ktr.lowerThan(MIN_CALC_COLOR_K))
                 continue;
 
@@ -287,6 +347,7 @@ public class SimpleRayTracer extends RayTracerBase {
 
         return color;
     }
+
 
 
 
@@ -306,33 +367,81 @@ public class SimpleRayTracer extends RayTracerBase {
 
         Material material = intersection.geometry.getMaterial();
 
-        Color reflectedColor = calcGlobalEffect(reflectedRay, level, k, material.kR);
-        Color refractedColor = calcGlobalEffect(refractedRay, level, k, material.kT);
+        Color reflectedColor = calcGlobalEffect(reflectedRay, level,k, material.kR);
+        Color refractedColor = calcGlobalEffect(refractedRay, level,k, material.kT);
         //System.out.println("Local color: " + reflectedColor.add(refractedColor));//*********************************************************************************
 
         return reflectedColor.add(refractedColor);
     }
 
+//    /**
+//     * Calculates the global effect (reflection or refraction) by tracing a secondary ray.
+//     *
+//     * @param ray   the secondary ray (reflected or refracted)
+//     * @param level recursion level
+//     * @param k     accumulated attenuation so far
+//     * @param kx    the transparency/reflection coefficient of the geometry
+//     * @return the color contribution from the global effect
+//     */
+//    private Color calcGlobalEffect(Ray ray, int level, Double3 k, Double3 kx) {
+//        Intersection intersection = findClosestIntersection(ray);
+//        if (intersection == null) {
+//            return scene.background;
+//        }
+//
+//        // Ensure the ray direction is recorded for this intersection
+//        intersection.rayDirection = ray.getDirection();
+//
+//        return calcColor(intersection, level - 1, k.product(kx)).scale(kx);
+//    }
+
+
     /**
-     * Calculates the global effect (reflection or refraction) by tracing a secondary ray.
+     * Calculates the global lighting effect (reflection or transparency) recursively.
      *
-     * @param ray   the secondary ray (reflected or refracted)
-     * @param level recursion level
-     * @param k     accumulated attenuation so far
-     * @param kx    the transparency/reflection coefficient of the geometry
+     * @param ray the secondary ray (reflection or transparency)
+     * @param level the current recursion depth
+     * @param k the accumulated attenuation coefficient
+     * @param kx the reflection/transparency coefficient of the current geometry
      * @return the color contribution from the global effect
      */
     private Color calcGlobalEffect(Ray ray, int level, Double3 k, Double3 kx) {
-        Intersection intersection = findClosestIntersection(ray);
-        if (intersection == null) {
-            return scene.background;
+        Double3 kkx = k.product(kx);
+        if (kkx.lowerThan(MIN_CALC_COLOR_K)) {
+            return Color.BLACK;
         }
 
-        // Ensure the ray direction is recorded for this intersection
+        Intersection intersection = findClosestIntersection(ray);
+        if (intersection == null) {
+            return scene.background.scale(kx);
+        }
+
+        // Store the ray's direction in the intersection object
         intersection.rayDirection = ray.getDirection();
 
-        return calcColor(intersection, level - 1, k.product(kx)).scale(kx);
+        return calcColor(intersection, level - 1, kkx).scale(kx);
     }
+
+
+
+//    /**
+//     * Calculates the global effect of light on a given ray.
+//     * @param ray the ray to trace
+//     * @param kx the k value for color calculations
+//     * @param level the recursion level
+//     * @param k the k value for color calculations
+//     * @return the color at the intersection point
+//     */
+//    private Color calcGlobalEffect(Ray ray,Double3 kx,int level,Double3 k)
+//    {
+//        Double3 kkx = k.product(kx);
+//        if (kkx.lowerThan(MIN_CALC_COLOR_K)) return Color.BLACK;
+//        Intersection closestIntersection = findClosestIntersection(ray);
+//        if (closestIntersection == null) return scene.background.scale(kx);
+//        return preprocessIntersection(closestIntersection,ray.getDirection())?
+//                calcColor(closestIntersection, level - 1, kkx).scale(kx)
+//                : Color.BLACK;
+//    }
 
 
 //    /**

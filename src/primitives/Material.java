@@ -30,13 +30,13 @@ public class Material {
      * Transparency coefficient.
      * Controls how much light passes through the surface.
      */
-    public Double3 kT = Double3.ZERO;
+    public Double3 kT = Double3.ZERO;  //שקיפות
 
     /**
      * Reflection coefficient.
      * Controls how much light is reflected like a mirror.
      */
-    public Double3 kR = Double3.ZERO;
+    public Double3 kR = Double3.ZERO; //השתקפות
 
     /**
      * Shininess factor (Phong model).
