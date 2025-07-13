@@ -118,4 +118,34 @@ class ShadowTests {
                 .writeToImage("shadowTrianglesSphere");
     }
 
+    /**
+     * Produce a picture of a two triangles lighted by a spot light with a Sphere
+     * producing a shading
+     */
+    @Test
+    void trianglesSphere_AA() {
+        scene.geometries //
+                .add( //
+                        new Triangle(new Point(-150, -150, -115), new Point(150, -150, -135), new Point(75, 75, -150)) //
+                                .setMaterial(new Material().setKS(0.8).setShininess(60)), //
+                        new Triangle(new Point(-150, -150, -115), new Point(-70, 70, -140), new Point(75, 75, -150)) //
+                                .setMaterial(new Material().setKS(0.8).setShininess(60)), //
+                        new Sphere(new Point(0, 0, -11), 30d) //
+                                .setEmission(new Color(BLUE)) //
+                                .setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(30)) //
+                );
+        scene.setAmbientLight(new AmbientLight(new Color(38, 38, 38)));
+        scene.lights //
+                .add(new SpotLight(new Color(700, 400, 400), new Point(40, 40, 115), new Vector(-1, -1, -4)) //
+                        .setKl(4E-4).setKq(2E-5));
+
+        camera//
+                .setResolution(600, 600)
+                .setAntiAliasing(true)
+                .setSamplesPerPixel(25)
+                .build() //
+                .renderImage() //
+                .writeToImage("shadowTrianglesSphere2_AA");
+    }
+
 }

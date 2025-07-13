@@ -3,6 +3,7 @@ package geometries;
 import primitives.Point;
 import primitives.Ray;
 
+import java.awt.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,6 +18,12 @@ public class Geometries extends Intersectable {
 
     public void add(Intersectable... geometries) {
         Collections.addAll(this.geometries, geometries);
+    }
+    /**
+     * Removes all geometries from the collection.
+     */
+    public void clear() {
+        geometries.clear();
     }
 
     public Geometries() {

@@ -6,6 +6,8 @@ import primitives.Ray;
 import primitives.Vector;
 import scene.Scene;
 
+import java.util.ArrayList;
+import java.util.List;
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
 
@@ -14,6 +16,21 @@ import static primitives.Util.isZero;
  * Defines camera orientation, position, and view plane parameters.
  */
 public class Camera implements Cloneable {
+
+    private boolean antiAliasing = false;
+    private int samplesPerPixel = 81; // למשל 9x9
+
+    private int amountOfRays_DOF = 1;// the number of rays in the grid for the depth of field
+    private int amountOfRays_AA = 1; // the number of rays in the grid for the depth of field
+    private double aperture = 0; // the radius of the circle of the camera
+    private double depthOfField = 100; // the distance between the camera and the focus _focusPoint
+
+
+    private int threadsCount = 0; // -2 auto, -1 range/stream, 0 no threads, 1+ number of threads
+    private final int SPARE_THREADS = 2; // Spare threads if trying to use all the cores
+    private double printInterval = 0; // printing progress percentage interval
+
+
 
     private Vector vTo = null;         // Forward direction vector
     private Vector vUp = null;         // Upward direction vector
@@ -41,6 +58,12 @@ public class Camera implements Cloneable {
         return new Builder();
     }
 
+    public void setSamplesPerPixel(int samples) {
+        this.samplesPerPixel = samples;
+    }
+    public void setAntiAliasing(boolean value) {
+        this.antiAliasing = value;
+    }
     /**
      * Constructs a ray from the camera to a specific pixel on the view plane.
      *
@@ -74,10 +97,23 @@ public class Camera implements Cloneable {
      *
      * @return this Camera instance
      */
+//    public Camera renderImage() {
+//        for (int i = 0; i < nY; i++) {
+//            for (int j = 0; j < nX; j++) {
+//                castRay(j, i);
+//            }
+//        }
+//        return this;
+//    }
     public Camera renderImage() {
         for (int i = 0; i < nY; i++) {
             for (int j = 0; j < nX; j++) {
-                castRay(j, i);
+                if (antiAliasing) {
+                    Color color = renderPixelWithAA(j, i);
+                    imageWriter.writePixel(j, i, color);
+                } else {
+                    castRay(j, i); // הקרן הרגילה
+                }
             }
         }
         return this;
@@ -99,17 +135,139 @@ public class Camera implements Cloneable {
 //    }
 
     private void castRay(int j, int i) {
+
         imageWriter.writePixel(j, i, rayTracer.traceRay(constructRay(nX, nY, j, i)));
+    }
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    //---
+    private Color renderPixelWithAA(int i, int j) {
+        List<Ray> rays = constructBeam(i, j, samplesPerPixel); // פונקציה שתבני
+        Color color = Color.BLACK;
+        for (Ray ray : rays) {
+            color = color.add(rayTracer.traceRay(ray));
+        }
+        return color.reduce(rays.size());
+    }
+
+
+
+    /**
+     * Camera getter
+     *
+     * @return the aperture of the camera
+     */
+    public double getAperture() {
+        return aperture;
     }
 
     /**
-     * Draws a grid on the image with the specified interval and color.
-     * Only draws lines and leaves the rest of the image intact.
+     * Camera getter
      *
-     * @param interval the spacing between grid lines
-     * @param color    the color of the grid lines
-     * @return this Camera instance
+     * @return the depth of field of the camera
      */
+    public double getDepthOfField() {
+        return depthOfField;
+    }
+    /**
+     * Camera getter
+     *
+     * @return the number of rays in the grid for the depth of field
+     */
+    public int getAmountOfRaysDOF() {
+        return amountOfRays_DOF;
+    }
+
+    /**
+     * Camera getter
+     *
+     * @return the number of rays in the grid for the depth of field
+     */
+    public int getAmountOfRaysAA() {
+        return amountOfRays_AA;
+    }
+
+
+
+
+    //        for (int xi = 0; xi < gridSize; xi++) {
+//            for (int yi = 0; yi < gridSize; yi++) {
+//                double dx = (xi + 0.5) / gridSize - 0.5;
+//                double dy = (yi + 0.5) / gridSize - 0.5;
+//
+//                Point samplePoint = pixelCenter
+//                        .add(vRight.scale(dx * pixelWidth))
+//                        .add(vUp.scale(dy * pixelHeight));
+//
+//                rays.add(new Ray(p0, samplePoint.subtract(p0)));
+//            }
+//        }
+//
+//        return rays;
+//    }
+
+
+    //---
+    private List<Ray> constructBeam(int j, int i, int samples) {
+        if (samples <= 0)
+            throw new IllegalArgumentException("samples must be > 0");
+
+        int gridSize = (int) Math.sqrt(samples);
+        if (gridSize * gridSize != samples)
+            throw new IllegalArgumentException("samples must be a perfect square");
+
+        List<Ray> rays = new ArrayList<>();
+
+        double pixelWidth = width / nX;
+        double pixelHeight = height / nY;
+
+        // חישוב מדויק של מרכז הפיקסל
+        double xJ = (j - (nX - 1) / 2.0) * pixelWidth;
+        double yI = (i - (nY - 1) / 2.0) * pixelHeight;
+
+        Point pixelCenter = pcenter
+                .add(vRight.scale(xJ))
+                .add(vUp.scale(-yI));
+
+        for (int xi = 0; xi < gridSize; xi++) {
+            for (int yi = 0; yi < gridSize; yi++) {
+                double dx = (xi + 0.5) / gridSize - 0.5;
+                double dy = (yi + 0.5) / gridSize - 0.5;
+
+
+                Point samplePoint = pixelCenter;
+                if(dx>0)
+                        samplePoint = samplePoint.add(vRight.scale(dx * pixelWidth));
+                if(dy >0)
+                          samplePoint = samplePoint.add(vUp.scale(dy * pixelHeight));
+
+                Vector dir = samplePoint.subtract(p0);
+                if (dir.lengthSquared() == 0)
+                    continue;
+
+                rays.add(new Ray(p0, dir));
+            }
+        }
+
+        // אם במקרה לא נוספה אף קרן – החזר אחת רגילה
+        if (rays.isEmpty()) {
+            Vector dir = pixelCenter.subtract(p0);
+            if (dir.lengthSquared() != 0)
+                rays.add(new Ray(p0, dir));
+        }
+
+        return rays;
+    }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+    /**
+         * Draws a grid on the image with the specified interval and color.
+         * Only draws lines and leaves the rest of the image intact.
+         *
+         * @param interval the spacing between grid lines
+         * @param color    the color of the grid lines
+         * @return this Camera instance
+         */
     public Camera printGrid(int interval, Color color) {
         for (int i = 0; i < nY; i++) {
             for (int j = 0; j < nX; j++) {
@@ -215,6 +373,50 @@ public class Camera implements Cloneable {
             camera.p0 = p0;
             return this;
         }
+//BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+        //---
+        public Builder setAntiAliasing(boolean value) {
+            this.camera.antiAliasing = value;
+            return this;
+        }
+        ///**
+        //         * Set the number of rays in the grid for the anti-aliasing
+        //         *
+        //         * @param samples the number of rays in the grid
+        //         * @return the camera builder
+        //         */
+        public Builder setSamplesPerPixel(int samples) {
+            this.camera.samplesPerPixel = samples;
+            return this;
+        }
+
+
+        /**
+         * Set the amount of threads to use for rendering
+         *
+         * @param threads the amount of threads to use
+         * @return the camera builder
+         */
+        public Builder setMultithreading(int threads) {
+            if (threads < -2) throw new IllegalArgumentException("Multithreading must be -2 or higher");
+            if (threads >= -1) camera.threadsCount = threads;
+            else { // == -2
+                int cores = Runtime.getRuntime().availableProcessors() - camera.SPARE_THREADS;
+                camera.threadsCount = cores <= 2 ? 1 : cores;
+            }
+            return this;
+        }
+
+        /**
+         * Set the interval for printing debug information
+         *
+         * @param interval the interval for printing debug information
+         * @return the camera builder
+         */
+        public Builder setDebugPrint(double interval) {
+            camera.printInterval = interval;
+            return this;
+        }
 
         /**
          * Sets the distance to the view plane.
@@ -223,6 +425,7 @@ public class Camera implements Cloneable {
          * @return the Builder instance to allow method chaining.
          * @throws IllegalArgumentException if the distance is not positive.
          */
+
         public Builder setVpDistance(double distance) {
             if (alignZero(distance) <= 0) {
                 throw new IllegalArgumentException("Distance must be positive");
@@ -264,6 +467,7 @@ public class Camera implements Cloneable {
             camera.nY = nY;
             return this;
         }
+
 
         /**
          * Sets the ray tracer for the camera.
@@ -365,5 +569,8 @@ public class Camera implements Cloneable {
         private boolean isOrthogonal(Vector v1, Vector v2) {
             return isZero(v1.dotProduct(v2));
         }
+
+//        public Builder setMultithreading(boolean b) {
+//        }
     }
 }

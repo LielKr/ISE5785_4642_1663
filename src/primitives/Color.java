@@ -16,6 +16,7 @@ public class Color {
      * whatever...
      */
     private final Double3 rgb;
+    private static final double THRESHOLD= 0.1;
 
     /**
      * Black color = (0,0,0)
@@ -134,4 +135,16 @@ public class Color {
     public String toString() {
         return "rgb:" + rgb;
     }
+
+    public boolean iSimilar(Color other) {
+        double delta1 = (rgb.d1 - other.rgb.d1);
+        double delta2 = (rgb.d2 - other.rgb.d2);
+        double delta3 = (rgb.d3 - other.rgb.d3);
+
+        double delta= Math.sqrt(delta1*delta1 + delta2*delta2 + delta3*delta3)/255.0;
+
+        return delta<=THRESHOLD;
+    }
+
+
 }
