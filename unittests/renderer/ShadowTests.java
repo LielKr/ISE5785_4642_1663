@@ -140,7 +140,7 @@ class ShadowTests {
                         .setKl(4E-4).setKq(2E-5));
 
         camera//
-                .setResolution(600, 600)
+                .setResolution(2000, 2000)
                 .setAntiAliasing(true)
                 .setSamplesPerPixel(25)
                 .build() //

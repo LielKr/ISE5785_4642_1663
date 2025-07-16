@@ -426,10 +426,17 @@ public class AntiAliasingTest1 {
                 .setRayTracer(scene1, RayTracerType.SIMPLE)
                 .setLocation(new Point(0, 30, 150))
                 .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
-                .setVpSize(200, 200)
+//                .setVpSize(200, 200)
+//                .setVpDistance(150)
+//                .setResolution(800, 800)
+//                //.setMultithreading(true)
+//                .build();
+                .setVpSize(2000, 2000)
                 .setVpDistance(150)
                 .setResolution(800, 800)
-                //.setMultithreading(true)
+                .setDebugPrint(0.1)
+                .setASS(4)
+                .setMultithreading(-2)
                 .build();
 
         camera.renderImage()

@@ -7,9 +7,13 @@ import primitives.Vector;
 import scene.Scene;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.IntStream;
+
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
+
 
 /**
  * Represents a virtual camera in a 3D scene.
@@ -25,10 +29,12 @@ public class Camera implements Cloneable {
     private double aperture = 0; // the radius of the circle of the camera
     private double depthOfField = 100; // the distance between the camera and the focus _focusPoint
 
+    private int adaptiveSuperSamplingDepth = 0; // 0 - no adaptive super sampling, else - adaptive super sampling Depth times
 
     private int threadsCount = 0; // -2 auto, -1 range/stream, 0 no threads, 1+ number of threads
     private final int SPARE_THREADS = 2; // Spare threads if trying to use all the cores
     private double printInterval = 0; // printing progress percentage interval
+    private PixelManager pixelManager; // Manages pixel processing in multi-threaded rendering
 
 
 
@@ -73,7 +79,7 @@ public class Camera implements Cloneable {
      * @param i  row index of pixel
      * @return ray from camera to pixel (i,j)
      */
-    public Ray constructRay(int nX, int nY, int j, int i) {
+    public Ray constructRay(int nX, int nY, double j, double i) {
         double pixelWidth = width / nX;
         double pixelHeight = height / nY;
 
@@ -105,18 +111,56 @@ public class Camera implements Cloneable {
 //        }
 //        return this;
 //    }
-    public Camera renderImage() {
-        for (int i = 0; i < nY; i++) {
-            for (int j = 0; j < nX; j++) {
-                if (antiAliasing) {
-                    Color color = renderPixelWithAA(j, i);
-                    imageWriter.writePixel(j, i, color);
-                } else {
-                    castRay(j, i); // הקרן הרגילה
-                }
-            }
-        }
+    /**
+     * Render image using multi-threading by parallel streaming
+     * @return the camera object itself
+     */
+    private Camera renderImageStream() {
+        IntStream.range(0, nY).parallel()
+                .forEach(i -> IntStream.range(0, nX).parallel()
+                        .forEach(j -> castRay(j, i)));
         return this;
+    }
+    /**
+     * Render image without multi-threading
+     * @return the camera object itself
+     */
+    private Camera renderImageNoThreads() {
+        for (int i = 0; i < nY; ++i)
+            for (int j = 0; j < nX; ++j)
+                castRay(j, i);
+        return this;
+    }
+    /**
+     * Render image using multi-threading by creating and running raw threads
+     * @return the camera object itself
+     */
+    private Camera renderImageRawThreads() {
+        var threads = new LinkedList<Thread>();
+        while (threadsCount-- > 0)
+            threads.add(new Thread(() -> {
+                PixelManager.Pixel pixel;
+                while ((pixel = pixelManager.nextPixel()) != null)
+                    castRay(pixel.col(), pixel.row());
+            }));
+        for (var thread : threads) thread.start();
+        try {
+            for (var thread : threads) thread.join();
+        } catch (InterruptedException ignored) {}
+        return this;
+    }
+
+    /** This function renders image's pixel color map from the scene
+     * included in the ray tracer object
+     * @return the camera object itself
+     */
+    public Camera renderImage() {
+        pixelManager = new PixelManager(nY, nX, printInterval);
+        return switch (threadsCount) {
+            case 0 -> renderImageNoThreads();
+            case -1 -> renderImageStream();
+            default -> renderImageRawThreads();
+        };
     }
 
 
@@ -133,10 +177,101 @@ public class Camera implements Cloneable {
 //        Color color = rayTracer.traceRay(ray);
 //        imageWriter.writePixel(j, i, color);
 //    }
+    /**
+     * Applies adaptive super sampling to a given pixel area by checking the colors at the four corners.
+     * If all corners have the same color, returns it directly. Otherwise, subdivides the region recursively.
+     *
+     * @param row     the row index of the pixel (i)
+     * @param col     the column index of the pixel (j)
+     * @param depth   current recursion depth
+     * @param minX    X coordinate of the left edge of the region
+     * @param maxX    X coordinate of the right edge of the region
+     * @param minY    Y coordinate of the top edge of the region
+     * @param maxY    Y coordinate of the bottom edge of the region
+     * @return        the computed color for the region
+     */
+    private Color adaptiveSuperSampling(int row, int col, int depth,
+                                        double minX, double maxX, double minY, double maxY) {
+
+        // Shoot ray through top-left corner
+        Ray rayTL = constructRay(nX, nY, row + minY, col + minX);
+        Color colorTL = rayTracer.traceRay(rayTL);
+
+        // Stop if recursion limit reached
+        if (depth >= adaptiveSuperSamplingDepth) {
+            return colorTL;
+        }
+
+        // Top-right corner
+        Ray rayTR = constructRay(nX, nY, row + minY, col + maxX);
+        Color colorTR = rayTracer.traceRay(rayTR);
+        if (!colorTR.iSimilar(colorTL)) {
+            return subdivideAndAverage(row, col, depth, minX, maxX, minY, maxY);
+        }
+
+        // Bottom-left corner
+        Ray rayBL = constructRay(nX, nY, row + maxY, col + minX);
+        Color colorBL = rayTracer.traceRay(rayBL);
+        if (!colorBL.iSimilar(colorTL)) {
+            return subdivideAndAverage(row, col, depth, minX, maxX, minY, maxY);
+        }
+
+        // Bottom-right corner
+        Ray rayBR = constructRay(nX, nY, row + maxY, col + maxX);
+        Color colorBR = rayTracer.traceRay(rayBR);
+        if (!colorBR.iSimilar(colorTL)) {
+            return subdivideAndAverage(row, col, depth, minX, maxX, minY, maxY);
+        }
+
+        // All corners returned same color
+        return colorTL;
+    }
+
+    /**
+     * Subdivides the region into four smaller regions and averages their recursively computed colors.
+     *
+     * @param row     the pixel's row index
+     * @param col     the pixel's column index
+     * @param depth   current recursion depth
+     * @param minX    left bound of region
+     * @param maxX    right bound of region
+     * @param minY    top bound of region
+     * @param maxY    bottom bound of region
+     * @return        averaged color from the 4 subregions
+     */
+    private Color subdivideAndAverage(int row, int col, int depth,
+                                      double minX, double maxX, double minY, double maxY) {
+
+        double midX = (minX + maxX) / 2.0;
+        double midY = (minY + maxY) / 2.0;
+        int nextDepth = depth + 1;
+
+        Color topLeft     = adaptiveSuperSampling(row, col, nextDepth, minX, midX, minY, midY);
+        Color topRight    = adaptiveSuperSampling(row, col, nextDepth, midX, maxX, minY, midY);
+        Color bottomLeft  = adaptiveSuperSampling(row, col, nextDepth, minX, midX, midY, maxY);
+        Color bottomRight = adaptiveSuperSampling(row, col, nextDepth, midX, maxX, midY, maxY);
+
+        return topLeft.add(topRight, bottomLeft, bottomRight).reduce(4);
+    }
+
+
+
 
     private void castRay(int j, int i) {
+        Color color;
+        if (adaptiveSuperSamplingDepth != 0){
+            color = adaptiveSuperSampling(j,i,0,-0.5,0.5,-0.5,0.5);
+        }
+        else if (antiAliasing) {
+            color = renderPixelWithAA(j, i);
 
-        imageWriter.writePixel(j, i, rayTracer.traceRay(constructRay(nX, nY, j, i)));
+        }
+        else {
+            Ray ray = constructRay(nX, nY, j, i);
+            color = rayTracer.traceRay(ray);
+        }
+        imageWriter.writePixel(j, i, color);
+        pixelManager.pixelDone();
     }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -237,9 +372,9 @@ public class Camera implements Cloneable {
 
                 Point samplePoint = pixelCenter;
                 if(dx>0)
-                        samplePoint = samplePoint.add(vRight.scale(dx * pixelWidth));
+                    samplePoint = samplePoint.add(vRight.scale(dx * pixelWidth));
                 if(dy >0)
-                          samplePoint = samplePoint.add(vUp.scale(dy * pixelHeight));
+                    samplePoint = samplePoint.add(vUp.scale(dy * pixelHeight));
 
                 Vector dir = samplePoint.subtract(p0);
                 if (dir.lengthSquared() == 0)
@@ -249,7 +384,7 @@ public class Camera implements Cloneable {
             }
         }
 
-        // אם במקרה לא נוספה אף קרן – החזר אחת רגילה
+        // אם במקרה לא נוספה אף קרן - החזר אחת רגילה
         if (rays.isEmpty()) {
             Vector dir = pixelCenter.subtract(p0);
             if (dir.lengthSquared() != 0)
@@ -261,13 +396,13 @@ public class Camera implements Cloneable {
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
     /**
-         * Draws a grid on the image with the specified interval and color.
-         * Only draws lines and leaves the rest of the image intact.
-         *
-         * @param interval the spacing between grid lines
-         * @param color    the color of the grid lines
-         * @return this Camera instance
-         */
+     * Draws a grid on the image with the specified interval and color.
+     * Only draws lines and leaves the rest of the image intact.
+     *
+     * @param interval the spacing between grid lines
+     * @param color    the color of the grid lines
+     * @return this Camera instance
+     */
     public Camera printGrid(int interval, Color color) {
         for (int i = 0; i < nY; i++) {
             for (int j = 0; j < nX; j++) {
@@ -373,7 +508,7 @@ public class Camera implements Cloneable {
             camera.p0 = p0;
             return this;
         }
-//BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+        //BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
         //---
         public Builder setAntiAliasing(boolean value) {
             this.camera.antiAliasing = value;
@@ -482,6 +617,20 @@ public class Camera implements Cloneable {
             } else {
                 camera.rayTracer = null;
             }
+            return this;
+        }
+
+        /**
+         * Sets the Adaptive Super Sampling depth for the camera.
+         *
+         * @param depth the depth of adaptive super sampling (0 for no adaptive super sampling).
+         * @return the Builder instance to allow method chaining.
+         */
+        public Builder setASS(int depth) {
+            if (depth < 0) {
+                throw new IllegalArgumentException("Adaptive Super Sampling depth must be non-negative");
+            }
+            camera.adaptiveSuperSamplingDepth = depth;
             return this;
         }
 
